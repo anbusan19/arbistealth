@@ -9,17 +9,28 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract FeeVaultTest is Test {
     FeeVault public vault;
     MockERC20 public token;
+    MockERC20 public usdg;
 
     address internal owner = address(0x0AA0);
     address internal payer = address(0xBEEF);
 
     function setUp() public {
-        vault = new FeeVault(owner);
+        usdg = new MockERC20();
+        vault = new FeeVault(owner, address(usdg));
         token = new MockERC20();
         token.mint(payer, 100 ether);
 
         vm.prank(payer);
         token.approve(address(vault), type(uint256).max);
+    }
+
+    function test_Constructor_SetsPreferredAsset() public view {
+        assertEq(vault.preferredAsset(), address(usdg));
+    }
+
+    function test_Constructor_RevertsOnZeroPreferredAsset() public {
+        vm.expectRevert(FeeVault.ZeroAddress.selector);
+        new FeeVault(owner, address(0));
     }
 
     function test_PayFee_TransfersTokensAndStoresReceipt() public {

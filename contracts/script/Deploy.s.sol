@@ -19,6 +19,8 @@ import {SettlementRouter} from "../src/SettlementRouter.sol";
 ///        ERC8004_IDENTITY_REGISTRY  - ERC-8004 identity registry
 ///        ERC8004_REPUTATION_REGISTRY - ERC-8004 reputation registry
 ///        ERC8004_VALIDATION_REGISTRY - ERC-8004 validation registry
+///        USDG_TOKEN                  - Paxos USDG token, set as FeeVault's
+///                                       preferred fee settlement asset
 ///      Plus PRIVATE_KEY for the deployer, used as the initial owner of
 ///      FeeVault and AgentIdentityAdapter.
 contract Deploy is Script {
@@ -28,12 +30,14 @@ contract Deploy is Script {
         address identityRegistry = vm.envAddress("ERC8004_IDENTITY_REGISTRY");
         address reputationRegistry = vm.envAddress("ERC8004_REPUTATION_REGISTRY");
         address validationRegistry = vm.envAddress("ERC8004_VALIDATION_REGISTRY");
+        address usdg = vm.envAddress("USDG_TOKEN");
 
         require(announcer != address(0), "ERC5564_ANNOUNCER not set");
         require(metaRegistry != address(0), "ERC6538_REGISTRY not set");
         require(identityRegistry != address(0), "ERC8004_IDENTITY_REGISTRY not set");
         require(reputationRegistry != address(0), "ERC8004_REPUTATION_REGISTRY not set");
         require(validationRegistry != address(0), "ERC8004_VALIDATION_REGISTRY not set");
+        require(usdg != address(0), "USDG_TOKEN not set");
 
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
@@ -45,7 +49,7 @@ contract Deploy is Script {
         StealthMetaRegistryAdapter stealthMetaRegistry = new StealthMetaRegistryAdapter(metaRegistry);
         AgentIdentityAdapter agentIdentity =
             new AgentIdentityAdapter(identityRegistry, reputationRegistry, validationRegistry, deployer);
-        FeeVault feeVault = new FeeVault(deployer);
+        FeeVault feeVault = new FeeVault(deployer, usdg);
 
         SettlementRouter router = new SettlementRouter(
             address(intentRegistry),

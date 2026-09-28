@@ -11,6 +11,10 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 ///         to a specific piece of settled work. Each payment produces a
 ///         receipt hash that can be attached to an agent's ERC-8004
 ///         reputation entry as proof the fee was actually paid on-chain.
+/// @dev `payFee` accepts any ERC20 so the protocol isn't hard-locked to one
+///      asset, but `preferredAsset` records Paxos' USDG as the protocol's
+///      recommended fee settlement asset, set once at deploy time and
+///      readable on-chain by agents, indexers, and block explorers.
 contract FeeVault is Ownable {
     using SafeERC20 for IERC20;
 
@@ -21,6 +25,10 @@ contract FeeVault is Ownable {
         bytes32 workHash;
         uint256 timestamp;
     }
+
+    /// @notice The protocol's recommended fee settlement asset (USDG).
+    ///         Advisory only — `payFee` does not restrict `asset` to this value.
+    address public immutable preferredAsset;
 
     /// @notice Receipt data keyed by receipt hash, for on-chain lookup/verification.
     mapping(bytes32 receiptHash => Receipt) public receipts;
@@ -36,8 +44,12 @@ contract FeeVault is Ownable {
     event FeesWithdrawn(address indexed asset, address indexed to, uint256 amount);
 
     error ZeroAmount();
+    error ZeroAddress();
 
-    constructor(address initialOwner) Ownable(initialOwner) {}
+    constructor(address initialOwner, address _preferredAsset) Ownable(initialOwner) {
+        if (_preferredAsset == address(0)) revert ZeroAddress();
+        preferredAsset = _preferredAsset;
+    }
 
     /// @notice Pays a routing/execution fee in `asset`, tied to `workHash`
     ///         (e.g. the settled intent hash). Requires the caller to have

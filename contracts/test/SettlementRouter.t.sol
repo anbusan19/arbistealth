@@ -57,7 +57,11 @@ contract SettlementRouterTest is Test {
             address(identityRegistry), address(reputationRegistry), address(validationRegistry), address(this)
         );
 
-        feeVault = new FeeVault(address(this));
+        tokenIn = new MockERC20();
+        tokenOut = new MockERC20();
+        feeToken = new MockERC20();
+
+        feeVault = new FeeVault(address(this), address(feeToken));
 
         router = new SettlementRouter(
             address(intentRegistry),
@@ -67,10 +71,6 @@ contract SettlementRouterTest is Test {
             address(feeVault)
         );
         agentIdentity.setRouter(address(router));
-
-        tokenIn = new MockERC20();
-        tokenOut = new MockERC20();
-        feeToken = new MockERC20();
 
         tokenIn.mint(user, 10 ether);
         tokenOut.mint(agent, 10 ether);

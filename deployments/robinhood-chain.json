@@ -17,5 +17,8 @@
     "AgentIdentityAdapter": null,
     "FeeVault": null,
     "SettlementRouter": null
+  },
+  "externalTokens": {
+    "usdg": null
   }
 }
