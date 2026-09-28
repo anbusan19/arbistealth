@@ -1,0 +1,21 @@
+{
+  "chainId": 42161,
+  "network": "arbitrum-one",
+  "deployedAt": null,
+  "deployer": null,
+  "externalRegistries": {
+    "erc5564Announcer": null,
+    "erc6538Registry": null,
+    "erc8004IdentityRegistry": null,
+    "erc8004ReputationRegistry": null,
+    "erc8004ValidationRegistry": null
+  },
+  "contracts": {
+    "IntentRegistry": null,
+    "StealthAnnouncerAdapter": null,
+    "StealthMetaRegistryAdapter": null,
+    "AgentIdentityAdapter": null,
+    "FeeVault": null,
+    "SettlementRouter": null
+  }
+}
