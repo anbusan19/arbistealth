@@ -1,4 +1,6 @@
 import { ConnectButton } from "@/components/ConnectButton";
+import { IntentForm } from "@/components/IntentForm";
+import { OpenIntents } from "@/components/OpenIntents";
 
 export default function Home() {
   return (
@@ -7,6 +9,9 @@ export default function Home() {
         <h1 className="text-lg font-semibold">ArbiStealth</h1>
         <ConnectButton />
       </header>
+
+      <IntentForm />
+      <OpenIntents />
     </main>
   );
 }
