@@ -1,7 +1,8 @@
 import express, { type Express } from "express";
 import type { Hex } from "viem";
+import type { RelayerConfig } from "./config.js";
 import { IntentPool, IntentValidationError, type StoredIntent } from "./intentPool.js";
-import type { Intent, IntentDomain } from "./types.js";
+import type { Intent } from "./types.js";
 import { claimSchema, submitIntentSchema } from "./schema.js";
 
 function serializeIntent(intent: Intent) {
@@ -25,14 +26,23 @@ function serializeStored(stored: StoredIntent) {
   };
 }
 
-/** Builds the relayer's HTTP API around a fresh IntentPool for the given domain. */
-export function createServer(domain: IntentDomain): Express {
+/** Builds the relayer's HTTP API around a fresh IntentPool for the given config. */
+export function createServer(config: RelayerConfig): Express {
+  const { domain } = config;
   const pool = new IntentPool(domain);
   const app = express();
   app.use(express.json());
 
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
+  });
+
+  app.get("/config", (_req, res) => {
+    res.json({
+      chainId: domain.chainId,
+      intentRegistry: domain.verifyingContract,
+      preferredFeeAsset: config.usdgToken ?? null,
+    });
   });
 
   app.post("/intents", async (req, res) => {

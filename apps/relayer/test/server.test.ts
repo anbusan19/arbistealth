@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import request from "supertest";
 import { privateKeyToAccount } from "viem/accounts";
 import { createServer } from "../src/server.js";
+import type { RelayerConfig } from "../src/config.js";
 import type { Intent, IntentDomain } from "../src/types.js";
 import { INTENT_PRIMARY_TYPE, INTENT_TYPES } from "../src/types.js";
 
@@ -12,6 +13,12 @@ const domain: IntentDomain = {
   version: "1",
   chainId: 421614,
   verifyingContract: "0x0000000000000000000000000000000000000001",
+};
+
+const config: RelayerConfig = {
+  port: 0,
+  domain,
+  usdgToken: "0x0000000000000000000000000000000000000042",
 };
 
 function buildIntent(overrides: Partial<Intent> = {}): Intent {
@@ -48,14 +55,26 @@ async function signIntent(intent: Intent) {
 
 describe("relayer HTTP API", () => {
   it("GET /health returns ok", async () => {
-    const app = createServer(domain);
+    const app = createServer(config);
     const res = await request(app).get("/health");
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ status: "ok" });
   });
 
+  it("GET /config exposes the domain and preferred fee asset", async () => {
+    const app = createServer(config);
+    const res = await request(app).get("/config");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      chainId: domain.chainId,
+      intentRegistry: domain.verifyingContract,
+      preferredFeeAsset: config.usdgToken,
+    });
+  });
+
   it("submits an intent, lists it, and rejects a nonce replay", async () => {
-    const app = createServer(domain);
+    const app = createServer(config);
     const intent = buildIntent();
     const signature = await signIntent(intent);
 
@@ -79,7 +98,7 @@ describe("relayer HTTP API", () => {
   });
 
   it("rejects a malformed intent body with 400", async () => {
-    const app = createServer(domain);
+    const app = createServer(config);
     const res = await request(app)
       .post("/intents")
       .send({ intent: { user: "not-an-address" }, signature: "0x00" });
@@ -88,7 +107,7 @@ describe("relayer HTTP API", () => {
   });
 
   it("claim moves an intent out of the open list", async () => {
-    const app = createServer(domain);
+    const app = createServer(config);
     const intent = buildIntent();
     const signature = await signIntent(intent);
 

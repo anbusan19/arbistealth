@@ -3,6 +3,8 @@ import type { IntentDomain } from "./types.js";
 export interface RelayerConfig {
   port: number;
   domain: IntentDomain;
+  /** Paxos USDG address, the protocol's preferred fee settlement asset. Informational only. */
+  usdgToken?: `0x${string}`;
 }
 
 function requireEnv(name: string): string {
@@ -26,5 +28,6 @@ export function loadConfig(): RelayerConfig {
       chainId,
       verifyingContract: requireEnv("INTENT_REGISTRY_ADDRESS") as `0x${string}`,
     },
+    usdgToken: process.env.USDG_TOKEN as `0x${string}` | undefined,
   };
 }
