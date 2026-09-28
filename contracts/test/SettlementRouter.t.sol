@@ -53,8 +53,9 @@ contract SettlementRouterTest is Test {
         identityRegistry = new MockERC8004IdentityRegistry();
         reputationRegistry = new MockERC8004ReputationRegistry();
         validationRegistry = new MockERC8004ValidationRegistry();
-        agentIdentity =
-            new AgentIdentityAdapter(address(identityRegistry), address(reputationRegistry), address(validationRegistry));
+        agentIdentity = new AgentIdentityAdapter(
+            address(identityRegistry), address(reputationRegistry), address(validationRegistry), address(this)
+        );
 
         feeVault = new FeeVault(address(this));
 
@@ -65,6 +66,7 @@ contract SettlementRouterTest is Test {
             address(agentIdentity),
             address(feeVault)
         );
+        agentIdentity.setRouter(address(router));
 
         tokenIn = new MockERC20();
         tokenOut = new MockERC20();
@@ -89,7 +91,11 @@ contract SettlementRouterTest is Test {
         identityRegistry.registerAgent("ipfs://agent-card");
     }
 
-    function _buildParams(uint256 amountOut, uint256 feeAmount) internal view returns (SettlementRouter.SettlementParams memory) {
+    function _buildParams(uint256 amountOut, uint256 feeAmount)
+        internal
+        view
+        returns (SettlementRouter.SettlementParams memory)
+    {
         IntentRegistry.Intent memory intent = IntentRegistry.Intent({
             user: user,
             tokenIn: address(tokenIn),

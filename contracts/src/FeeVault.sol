@@ -30,11 +30,7 @@ contract FeeVault is Ownable {
     uint256 public receiptNonce;
 
     event FeePaid(
-        bytes32 indexed receiptHash,
-        address indexed payer,
-        address indexed asset,
-        uint256 amount,
-        bytes32 workHash
+        bytes32 indexed receiptHash, address indexed payer, address indexed asset, uint256 amount, bytes32 workHash
     );
 
     event FeesWithdrawn(address indexed asset, address indexed to, uint256 amount);

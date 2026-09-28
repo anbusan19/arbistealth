@@ -16,13 +16,16 @@ contract AgentIdentityAdapterTest is Test {
     MockERC8004ValidationRegistry public validationRegistry;
 
     address internal agent = address(0xA6E47);
+    address internal router = address(0x1234);
 
     function setUp() public {
         identityRegistry = new MockERC8004IdentityRegistry();
         reputationRegistry = new MockERC8004ReputationRegistry();
         validationRegistry = new MockERC8004ValidationRegistry();
-        adapter =
-            new AgentIdentityAdapter(address(identityRegistry), address(reputationRegistry), address(validationRegistry));
+        adapter = new AgentIdentityAdapter(
+            address(identityRegistry), address(reputationRegistry), address(validationRegistry), address(this)
+        );
+        adapter.setRouter(router);
     }
 
     function test_IsRegisteredAgent_FalseBeforeRegistration() public view {
@@ -46,8 +49,17 @@ contract AgentIdentityAdapterTest is Test {
         vm.prank(agent);
         uint256 agentId = identityRegistry.registerAgent("ipfs://agent-card");
 
+        vm.prank(router);
         adapter.recordSettlement(agentId, keccak256("receipt"), keccak256("work"));
 
         assertEq(reputationRegistry.entryCountOf(agentId), 1);
+    }
+
+    function test_RecordSettlement_RevertsWhenNotRouter() public {
+        vm.prank(agent);
+        uint256 agentId = identityRegistry.registerAgent("ipfs://agent-card");
+
+        vm.expectRevert(AgentIdentityAdapter.OnlyRouter.selector);
+        adapter.recordSettlement(agentId, keccak256("receipt"), keccak256("work"));
     }
 }
