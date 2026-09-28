@@ -34,3 +34,15 @@ export async function listOpenIntents(): Promise<OpenIntent[]> {
   if (!res.ok) throw new Error("failed to list intents");
   return res.json();
 }
+
+export interface RelayerRuntimeConfig {
+  chainId: number;
+  intentRegistry: Hex;
+  preferredFeeAsset: Hex | null;
+}
+
+export async function fetchRelayerConfig(): Promise<RelayerRuntimeConfig> {
+  const res = await fetch(`${relayerUrl()}/config`);
+  if (!res.ok) throw new Error("failed to fetch relayer config");
+  return res.json();
+}

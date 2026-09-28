@@ -1,6 +1,7 @@
 import { ConnectButton } from "@/components/ConnectButton";
 import { IntentForm } from "@/components/IntentForm";
 import { OpenIntents } from "@/components/OpenIntents";
+import { PreferredFeeAsset } from "@/components/PreferredFeeAsset";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
         <ConnectButton />
       </header>
 
+      <PreferredFeeAsset />
       <IntentForm />
       <OpenIntents />
     </main>
