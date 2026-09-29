@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { LineSidebar } from "./ui/LineSidebar";
-import { ConnectButton } from "./ConnectButton";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -13,7 +12,8 @@ const LINKS = [
 ];
 
 /** Replaces the old top Nav bar entirely: just a hamburger icon, fixed
- *  top-right on every page, opening a right-aligned LineSidebar panel. */
+ *  top-right on every page, revealing the LineSidebar content directly on
+ *  click — no background panel, no wallet button. */
 export function SiteMenu() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -51,21 +51,18 @@ export function SiteMenu() {
       </button>
 
       {open && (
-        <div className="flex flex-col items-end gap-6 border border-white/10 bg-[#040508]/95 p-6 backdrop-blur">
-          <ConnectButton />
-          <LineSidebar
-            items={LINKS.map((l) => l.label)}
-            align="right"
-            accentColor="#6e87ed"
-            textColor="#94a3b8"
-            markerColor="#334155"
-            defaultActive={activeIndex >= 0 ? activeIndex : null}
-            markerLength={40}
-            itemGap={16}
-            fontSize={0.95}
-            onItemClick={(index) => router.push(LINKS[index].href)}
-          />
-        </div>
+        <LineSidebar
+          items={LINKS.map((l) => l.label)}
+          align="right"
+          accentColor="#6e87ed"
+          textColor="#94a3b8"
+          markerColor="#334155"
+          defaultActive={activeIndex >= 0 ? activeIndex : null}
+          markerLength={40}
+          itemGap={16}
+          fontSize={0.95}
+          onItemClick={(index) => router.push(LINKS[index].href)}
+        />
       )}
     </div>
   );
