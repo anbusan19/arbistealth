@@ -3,7 +3,6 @@
 import { motion } from "motion/react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
-import { PortalFieldCollection } from "../shaders/portal-field/PortalFieldCollection";
 
 const STEPS = [
   "User generates a stealth meta-address and registers it once via the meta-address registry.",
@@ -16,12 +15,8 @@ const STEPS = [
 
 export function Architecture() {
   return (
-    <section className="relative overflow-hidden px-6 py-24 sm:px-10 lg:px-16">
-      <div className="pointer-events-none absolute inset-0 opacity-[0.12]">
-        <PortalFieldCollection variant="stream-convergence" speed={0.3} opacity={1} />
-      </div>
-
-      <div className="relative mx-auto max-w-[1600px]">
+    <section className="px-6 py-24 sm:px-10 lg:px-16">
+      <div className="mx-auto max-w-[1600px]">
         <Reveal>
           <SectionLabel index="§3">How It Works</SectionLabel>
         </Reveal>

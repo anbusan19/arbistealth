@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount, useConnect } from "wagmi";
 import { motion } from "motion/react";
-import { PortalFieldCollection } from "@/shaders/portal-field/PortalFieldCollection";
 import { Panel } from "@/components/ui/Panel";
 
 export default function Login() {
@@ -19,11 +18,7 @@ export default function Login() {
   const connector = connectors[0];
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#040508] p-6">
-      <div className="absolute inset-0 z-0 opacity-40">
-        <PortalFieldCollection variant="stream-convergence" speed={0.6} opacity={0.5} />
-      </div>
-
+    <div className="relative flex min-h-screen w-full items-center justify-center bg-[#040508] p-6">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
