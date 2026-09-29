@@ -136,6 +136,8 @@ Wraps the canonical ERC-5564 announcer and ERC-6538 registry contracts. Responsi
 ### 2. Agent Identity Layer
 Wraps the ERC-8004 Identity, Reputation, and Validation registries. Every agent operating on ArbiStealth must hold a registered identity before it can submit intents. Reputation entries reference the x402 receipt of the fee paid for that trade, so reputation is backed by real settlement, not self-reported claims.
 
+**Note:** the canonical ERC-8004 reference implementation turned out to use an ERC-721-based identity model and a feedback-based reputation system, considerably more complex than this interface, and its Validation Registry sub-spec has no deployed instance on any chain as of this writing. ArbiStealth currently deploys its own `SimpleAgentIdentityRegistry` / `SimpleAgentReputationRegistry` / `SimpleAgentValidationRegistry` implementing this simpler interface, rather than depending on an external contract that could change incompatibly. See those contracts' NatSpec for the tradeoffs; swapping in the canonical registry later only requires redeploying `AgentIdentityAdapter` against it, since the rest of the protocol only depends on the interface, not on whose contract implements it.
+
 ### 3. Intent Matching Engine
 Off-chain service that receives signed intents from the relayer network, finds viable counterparties or routes, and forwards matched orders to the settlement router for on-chain execution. Designed to be swappable, an early version can be a simple order book, later versions could route through existing Arbitrum liquidity.
 
@@ -169,9 +171,12 @@ This is a recommended stack. Adjust based on comfort level and time available.
 | `StealthMetaRegistryAdapter.sol` | Thin wrapper around the canonical ERC-6538 registry |
 | `SettlementRouter.sol` | Executes matched trades, derives stealth output, triggers announcement |
 | `AgentIdentityAdapter.sol` | Reads and writes against the ERC-8004 Identity and Reputation registries |
+| `SimpleAgentIdentityRegistry.sol` | ArbiStealth's own ERC-8004 identity registry (see note above) |
+| `SimpleAgentReputationRegistry.sol` | ArbiStealth's own ERC-8004 reputation registry, writes restricted to `AgentIdentityAdapter` |
+| `SimpleAgentValidationRegistry.sol` | ArbiStealth's own ERC-8004 validation registry |
 | `FeeVault.sol` | Holds and distributes routing fees, integrates with x402 settlement flow |
 
-Where possible, integrate with the canonical, already-deployed ERC-5564, ERC-6538, and ERC-8004 registries rather than redeploying your own copies. This keeps ArbiStealth composable with other tools already using those standards, and reduces the audit surface to just the ArbiStealth-specific contracts.
+Integrate with the canonical, already-deployed ERC-5564 and ERC-6538 registries rather than redeploying your own copies — this keeps ArbiStealth composable with other tools already using those standards, and reduces the audit surface to just the ArbiStealth-specific contracts. ERC-8004 is the exception: its canonical registries are still an actively evolving draft (see the Agent Identity Layer note above), so this deploys its own instead, until the standard stabilizes enough to depend on.
 
 ---
 
@@ -296,6 +301,9 @@ arbistealth/
 │   │   ├── StealthMetaRegistryAdapter.sol
 │   │   ├── SettlementRouter.sol
 │   │   ├── AgentIdentityAdapter.sol
+│   │   ├── SimpleAgentIdentityRegistry.sol
+│   │   ├── SimpleAgentReputationRegistry.sol
+│   │   ├── SimpleAgentValidationRegistry.sol
 │   │   └── FeeVault.sol
 │   ├── test/
 │   └── script/
