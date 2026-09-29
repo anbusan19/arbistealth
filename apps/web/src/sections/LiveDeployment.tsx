@@ -34,7 +34,7 @@ export function LiveDeployment() {
               className="flex flex-col justify-between gap-1 px-6 py-4 transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:px-8"
             >
               <span className="text-sm text-white">{LABELS[key]}</span>
-              <span className="font-geist-mono text-xs text-neutral-500 group-hover:text-cyan-400">
+              <span className="font-geist-mono text-xs text-neutral-500 group-hover:text-accent">
                 {CONTRACTS[key]}
               </span>
             </a>

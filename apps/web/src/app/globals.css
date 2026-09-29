@@ -11,6 +11,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /* Sampled from the hero's portal-field WebGL effect (hue ~228°, indigo-blue)
+     rather than an arbitrary Tailwind color — see git history for the sample. */
+  --color-accent: #6e87ed;
+  --color-accent-light: #8ea3f6;
   --font-sans: var(--font-plus-jakarta-sans);
   --font-mono: var(--font-geist-mono);
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { Nav } from "@/components/Nav";
 import { Hero } from "@/sections/Hero";
 import { Problem } from "@/sections/Problem";
 import { Solution } from "@/sections/Solution";
@@ -11,7 +10,6 @@ import { CTAFooter } from "@/sections/CTAFooter";
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#040508] text-white">
-      <Nav />
       <Hero />
       <Problem />
       <Solution />

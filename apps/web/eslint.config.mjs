@@ -17,6 +17,7 @@ const eslintConfig = defineConfig([
     "src/shaders/**",
     "src/components/TechText.tsx",
     "src/components/DecryptedText.tsx",
+    "src/components/ui/LineSidebar.tsx",
   ]),
 ]);
 

@@ -22,7 +22,7 @@ export function Architecture() {
         <ol className="mt-12 flex flex-col">
           {STEPS.map((step, i) => (
             <li key={i} className="flex items-start gap-6 border-t border-white/10 py-5 first:border-t-0">
-              <span className="w-8 shrink-0 font-geist-mono text-sm text-cyan-400/70">
+              <span className="w-8 shrink-0 font-geist-mono text-sm text-accent/70">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="text-sm leading-relaxed text-neutral-300 sm:text-base">{step}</p>

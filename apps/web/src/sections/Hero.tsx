@@ -7,7 +7,7 @@ import DecryptedText from "@/components/DecryptedText";
 
 export function Hero() {
   return (
-    <div className="relative flex min-h-[calc(100vh-65px)] w-full flex-col justify-end overflow-hidden p-6 select-none sm:p-10 lg:p-12">
+    <div className="relative flex min-h-screen w-full flex-col justify-end overflow-hidden p-6 select-none sm:p-10 lg:p-12">
       <div className="absolute inset-0 z-0">
         <PortalFieldCollection
           speed={1.0}
@@ -51,14 +51,14 @@ export function Hero() {
             revealDirection="start"
             animateOn="inViewHover"
             className="text-neutral-400"
-            encryptedClassName="text-cyan-400 font-mono font-medium"
+            encryptedClassName="text-accent font-mono font-medium"
           />
         </div>
 
         <div className="mt-6 flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="border border-cyan-400/50 bg-cyan-400/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-cyan-300 hover:bg-cyan-400/20"
+            className="border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20"
           >
             LAUNCH APP
           </Link>

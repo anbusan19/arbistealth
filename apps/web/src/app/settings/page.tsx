@@ -79,14 +79,14 @@ function StealthKeysPanel({ address }: { address: `0x${string}` }) {
       <div className="mt-6 flex flex-wrap gap-3">
         <button
           onClick={generate}
-          className="border border-white/10 px-4 py-2 font-geist-mono text-xs text-neutral-300 hover:border-cyan-400/40 hover:text-white"
+          className="border border-white/10 px-4 py-2 font-geist-mono text-xs text-neutral-300 hover:border-accent/40 hover:text-white"
         >
           {keys ? "REGENERATE KEYS" : "GENERATE KEYS"}
         </button>
         <button
           onClick={() => register.mutate()}
           disabled={!keys || register.isPending}
-          className="border border-cyan-400/50 bg-cyan-400/10 px-4 py-2 font-geist-mono text-xs text-cyan-300 hover:bg-cyan-400/20 disabled:opacity-40"
+          className="border border-accent/50 bg-accent/10 px-4 py-2 font-geist-mono text-xs text-accent-light hover:bg-accent/20 disabled:opacity-40"
         >
           {register.isPending ? "REGISTERING…" : "REGISTER ON-CHAIN"}
         </button>
@@ -98,7 +98,7 @@ function StealthKeysPanel({ address }: { address: `0x${string}` }) {
           href={arbiscanTxUrl(txHash)}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 block font-geist-mono text-xs text-cyan-400 underline underline-offset-4"
+          className="mt-3 block font-geist-mono text-xs text-accent underline underline-offset-4"
         >
           View transaction on Arbiscan →
         </a>
@@ -146,7 +146,7 @@ export default function Settings() {
           <p className="text-sm text-neutral-400">Connect a wallet to manage settings.</p>
           <Link
             href="/login"
-            className="mt-6 inline-block border border-cyan-400/50 bg-cyan-400/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-cyan-300 hover:bg-cyan-400/20"
+            className="mt-6 inline-block border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20"
           >
             CONNECT WALLET
           </Link>

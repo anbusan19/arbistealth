@@ -16,7 +16,7 @@ export function CTAFooter() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="border border-cyan-400/50 bg-cyan-400/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-cyan-300 hover:bg-cyan-400/20"
+            className="border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20"
           >
             LAUNCH APP
           </Link>

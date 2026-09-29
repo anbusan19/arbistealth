@@ -37,7 +37,7 @@ export function Solution() {
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {PILLARS.map((pillar) => (
             <Panel key={pillar.tag} className="p-6 sm:p-8">
-              <div className="font-geist-mono text-[10px] tracking-[0.2em] text-cyan-400/80">{pillar.tag}</div>
+              <div className="font-geist-mono text-[10px] tracking-[0.2em] text-accent/80">{pillar.tag}</div>
               <div className="mt-3 font-geist-mono text-sm text-white">{pillar.standard}</div>
               <p className="mt-4 text-sm leading-relaxed text-neutral-400">{pillar.body}</p>
             </Panel>

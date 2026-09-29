@@ -37,7 +37,7 @@ export function Problem() {
         <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-2">
           {PROBLEMS.map((p) => (
             <Panel key={p.n} corners={false} className="!border-0 bg-[#040508] p-6 sm:p-8">
-              <div className="font-geist-mono text-xs text-cyan-400/70">{p.n}</div>
+              <div className="font-geist-mono text-xs text-accent/70">{p.n}</div>
               <h3 className="mt-3 text-lg font-medium text-white">{p.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">{p.body}</p>
             </Panel>

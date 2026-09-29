@@ -36,7 +36,7 @@ function toFeedItem(kind: FeedItem["kind"], log: Log, detail: string): FeedItem 
 
 const KIND_COLOR: Record<FeedItem["kind"], string> = {
   "Intent Submitted": "text-neutral-300",
-  "Settlement Executed": "text-cyan-400",
+  "Settlement Executed": "text-accent",
   "Stealth Announcement": "text-fuchsia-300",
   "Agent Registered": "text-emerald-300",
 };

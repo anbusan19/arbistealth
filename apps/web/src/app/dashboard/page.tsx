@@ -78,7 +78,7 @@ function AgentPanel({ address }: { address: Address }) {
           <button
             onClick={() => register.mutate()}
             disabled={isPending}
-            className="shrink-0 border border-cyan-400/50 bg-cyan-400/10 px-4 py-2 font-geist-mono text-xs text-cyan-300 hover:bg-cyan-400/20 disabled:opacity-40"
+            className="shrink-0 border border-accent/50 bg-accent/10 px-4 py-2 font-geist-mono text-xs text-accent-light hover:bg-accent/20 disabled:opacity-40"
           >
             {isPending ? "REGISTERING…" : "REGISTER AGENT"}
           </button>
@@ -109,7 +109,7 @@ function StealthStatusPanel({ address }: { address: Address }) {
         {!isRegistered && (
           <Link
             href="/settings"
-            className="shrink-0 border border-white/10 px-4 py-2 font-geist-mono text-xs text-neutral-300 hover:border-cyan-400/40 hover:text-white"
+            className="shrink-0 border border-white/10 px-4 py-2 font-geist-mono text-xs text-neutral-300 hover:border-accent/40 hover:text-white"
           >
             SET UP IN SETTINGS
           </Link>
@@ -185,7 +185,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
             onChange={(e) => setTokenIn(e.target.value)}
             placeholder="0x…"
             required
-            className="border border-white/10 bg-transparent px-3 py-2 font-geist-mono text-xs text-white outline-none focus:border-cyan-400/40"
+            className="border border-white/10 bg-transparent px-3 py-2 font-geist-mono text-xs text-white outline-none focus:border-accent/40"
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-neutral-400">
@@ -195,7 +195,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
             onChange={(e) => setTokenOut(e.target.value)}
             placeholder="0x…"
             required
-            className="border border-white/10 bg-transparent px-3 py-2 font-geist-mono text-xs text-white outline-none focus:border-cyan-400/40"
+            className="border border-white/10 bg-transparent px-3 py-2 font-geist-mono text-xs text-white outline-none focus:border-accent/40"
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-neutral-400">
@@ -205,7 +205,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
             onChange={(e) => setAmountIn(e.target.value)}
             placeholder="1.0"
             required
-            className="border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/40"
+            className="border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-accent/40"
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-neutral-400">
@@ -215,7 +215,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
             onChange={(e) => setMinAmountOut(e.target.value)}
             placeholder="0.95"
             required
-            className="border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/40"
+            className="border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-accent/40"
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-neutral-400">
@@ -225,7 +225,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
             onChange={(e) => setExpiryMinutes(e.target.value)}
             type="number"
             min="1"
-            className="border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/40"
+            className="border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-accent/40"
           />
         </label>
 
@@ -233,7 +233,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full border border-cyan-400/50 bg-cyan-400/10 py-3 font-geist-mono text-xs tracking-wide text-cyan-300 hover:bg-cyan-400/20 disabled:opacity-40 sm:w-auto sm:px-6"
+            className="w-full border border-accent/50 bg-accent/10 py-3 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40 sm:w-auto sm:px-6"
           >
             {isPending ? "SIGNING & SUBMITTING…" : "SIGN & SUBMIT INTENT"}
           </button>
@@ -246,7 +246,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
           href={arbiscanTxUrl(txHash)}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 block font-geist-mono text-xs text-cyan-400 underline underline-offset-4"
+          className="mt-4 block font-geist-mono text-xs text-accent underline underline-offset-4"
         >
           View transaction on Arbiscan →
         </a>
@@ -293,7 +293,7 @@ function MyIntentsPanel({ address }: { address: Address }) {
               href={arbiscanTxUrl(log.transactionHash)}
               target="_blank"
               rel="noreferrer"
-              className="font-geist-mono text-xs text-cyan-400 hover:underline"
+              className="font-geist-mono text-xs text-accent hover:underline"
             >
               VIEW TX →
             </a>
@@ -314,7 +314,7 @@ export default function Dashboard() {
           <p className="text-sm text-neutral-400">Connect a wallet to view your dashboard.</p>
           <Link
             href="/login"
-            className="mt-6 inline-block border border-cyan-400/50 bg-cyan-400/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-cyan-300 hover:bg-cyan-400/20"
+            className="mt-6 inline-block border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20"
           >
             CONNECT WALLET
           </Link>
@@ -331,7 +331,7 @@ export default function Dashboard() {
           href={arbiscanAddressUrl(address)}
           target="_blank"
           rel="noreferrer"
-          className="font-geist-mono text-xs text-neutral-500 hover:text-cyan-400"
+          className="font-geist-mono text-xs text-neutral-500 hover:text-accent"
         >
           {address.slice(0, 6)}…{address.slice(-4)} ↗
         </a>

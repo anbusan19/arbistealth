@@ -25,7 +25,7 @@ export default function Login() {
 
       <Panel className="relative z-10 w-full max-w-sm p-8 text-center">
         <div className="font-geist-mono text-sm tracking-wide text-white">
-          ARBI<span className="text-cyan-400">STEALTH</span>
+          ARBI<span className="text-accent">STEALTH</span>
         </div>
         <p className="mt-3 text-sm text-neutral-400">
           Connect a wallet to submit intents, register a stealth meta-address, and settle privately on Arbitrum
@@ -35,7 +35,7 @@ export default function Login() {
         <button
           onClick={() => connector && connect({ connector })}
           disabled={!connector || isPending}
-          className="mt-8 w-full border border-cyan-400/50 bg-cyan-400/10 py-3 font-geist-mono text-xs tracking-wide text-cyan-300 hover:bg-cyan-400/20 disabled:opacity-40"
+          className="mt-8 w-full border border-accent/50 bg-accent/10 py-3 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40"
         >
           {isPending ? "CONNECTING…" : "CONNECT WALLET"}
         </button>
