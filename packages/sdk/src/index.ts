@@ -28,3 +28,5 @@ export { RelayerClient, type OpenIntent, type RelayerRuntimeConfig } from "./rel
 export { registerAgent, getAgentId, getAgentReputation } from "./agent.js";
 
 export { payWithX402 } from "./x402.js";
+
+export { scanAnnouncements, type ScanAnnouncementsParams, type ScanMatch } from "./scan.js";

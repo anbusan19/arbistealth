@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createPublicClient, createWalletClient, defineChain, http, keccak256, toHex, type Address } from "viem";
+import { createPublicClient, createWalletClient, defineChain, http, keccak256, toHex, type Address, type Hex } from "viem";
 import { getAgentReputation, registerAgent } from "../src/agent.js";
+import { scanAnnouncements } from "../src/scan.js";
+import { computeStealthOutput, generateStealthKeys } from "../src/stealth.js";
 import { payWithX402 } from "../src/x402.js";
 import { startAnvil, type AnvilInstance } from "./helpers/anvil.js";
 import { loadArtifact, type Artifact } from "./helpers/artifacts.js";
@@ -23,6 +25,7 @@ let identityRegistry: Address;
 let reputationRegistry: Address;
 let feeVault: Address;
 let token: Address;
+let announcer: Address;
 
 async function deploy(artifact: Artifact, args: unknown[] = []): Promise<Address> {
   const hash = await walletClient.deployContract({
@@ -61,6 +64,7 @@ beforeAll(async () => {
   reputationRegistry = await deploy(loadArtifact("MockERC8004Registries.sol", "MockERC8004ReputationRegistry"));
   token = await deploy(loadArtifact("MockERC20.sol", "MockERC20"));
   feeVault = await deploy(loadArtifact("FeeVault.sol", "FeeVault"), [account, token]);
+  announcer = await deploy(loadArtifact("MockERC5564Announcer.sol", "MockERC5564Announcer"));
 
   const mintHash = await walletClient.writeContract({
     address: token,
@@ -93,5 +97,57 @@ describe("agent + x402 SDK helpers against a live chain (real compiled contracts
     const { receiptHash } = await payWithX402(publicClient, walletClient, feeVault, token, 10n * 10n ** 18n, workHash);
 
     expect(receiptHash).toMatch(/^0x[0-9a-f]{64}$/);
+  });
+});
+
+const announceAbi = [
+  {
+    type: "function",
+    name: "announce",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "schemeId", type: "uint256" },
+      { name: "stealthAddress", type: "address" },
+      { name: "ephemeralPubKey", type: "bytes" },
+      { name: "metadata", type: "bytes" },
+    ],
+    outputs: [],
+  },
+] as const;
+
+describe("scanAnnouncements against a live chain (real ERC-5564 announcer)", () => {
+  it("finds an announcement addressed to the recipient's viewing key and ignores others", async () => {
+    const recipient = generateStealthKeys();
+    const stranger = generateStealthKeys();
+
+    const output = computeStealthOutput(recipient);
+    const metadata = `0x${output.viewTag.toString(16).padStart(2, "0")}` as Hex;
+
+    const announceHash = await walletClient.writeContract({
+      address: announcer,
+      abi: announceAbi,
+      functionName: "announce",
+      args: [1n, output.stealthAddress, output.ephemeralPublicKey, metadata],
+      account,
+      chain: anvilChain,
+    });
+    await publicClient.waitForTransactionReceipt({ hash: announceHash });
+
+    const matches = await scanAnnouncements({
+      publicClient,
+      announcer,
+      viewingPrivateKey: recipient.viewingPrivateKey,
+      spendingPublicKey: recipient.spendingPublicKey,
+    });
+    expect(matches).toHaveLength(1);
+    expect(matches[0].stealthAddress).toBe(output.stealthAddress);
+
+    const strangerMatches = await scanAnnouncements({
+      publicClient,
+      announcer,
+      viewingPrivateKey: stranger.viewingPrivateKey,
+      spendingPublicKey: stranger.spendingPublicKey,
+    });
+    expect(strangerMatches).toHaveLength(0);
   });
 });
