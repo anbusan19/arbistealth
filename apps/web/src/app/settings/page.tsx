@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/layouts/AppLayout";
 import { Panel } from "@/components/ui/Panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { Reveal } from "@/components/ui/Reveal";
 import { CHAIN_ID, CONTRACTS, EXTERNAL, arbiscanTxUrl, erc6538RegistryAbi, feeVaultAbi } from "@/lib/contracts";
 import { generateStealthKeys, loadStoredStealthKeys, saveStealthKeys, type StealthKeys } from "@/lib/stealth";
 
@@ -157,10 +158,16 @@ export default function Settings() {
 
   return (
     <AppLayout>
-      <h1 className="mb-8 text-2xl font-medium text-white">Settings</h1>
+      <Reveal>
+        <h1 className="mb-8 text-2xl font-medium text-white">Settings</h1>
+      </Reveal>
       <div className="flex flex-col gap-6">
-        <StealthKeysPanel address={address} />
-        <NetworkPanel />
+        <Reveal delay={0.05}>
+          <StealthKeysPanel address={address} />
+        </Reveal>
+        <Reveal delay={0.1}>
+          <NetworkPanel />
+        </Reveal>
       </div>
     </AppLayout>
   );

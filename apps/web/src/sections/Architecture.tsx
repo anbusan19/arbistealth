@@ -1,4 +1,7 @@
+"use client";
+
 import { SectionLabel } from "../components/ui/SectionLabel";
+import { Reveal } from "../components/ui/Reveal";
 
 const STEPS = [
   "User generates a stealth meta-address and registers it once via the meta-address registry.",
@@ -11,24 +14,33 @@ const STEPS = [
 
 export function Architecture() {
   return (
-    <section className="border-t border-white/10 px-6 py-20 sm:px-10 lg:px-12">
-      <div className="mx-auto max-w-6xl">
-        <SectionLabel index="§3">How It Works</SectionLabel>
+    <section className="px-6 py-24 sm:px-10 lg:px-16">
+      <div className="mx-auto max-w-7xl">
+        <Reveal>
+          <SectionLabel index="§3">How It Works</SectionLabel>
+        </Reveal>
 
-        <h2 className="mt-6 max-w-2xl text-3xl font-medium tracking-tight text-white sm:text-4xl">
-          From signed intent to private settlement.
-        </h2>
+        <Reveal delay={0.05}>
+          <h2 className="mt-6 max-w-2xl text-3xl font-medium tracking-tight text-white sm:text-4xl">
+            From signed intent to private settlement.
+          </h2>
+        </Reveal>
 
-        <ol className="mt-12 flex flex-col">
-          {STEPS.map((step, i) => (
-            <li key={i} className="flex items-start gap-6 border-t border-white/10 py-5 first:border-t-0">
-              <span className="w-8 shrink-0 font-geist-mono text-sm text-accent/70">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="text-sm leading-relaxed text-neutral-300 sm:text-base">{step}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="relative mt-16">
+          <div className="absolute top-5 bottom-5 left-5 hidden w-px bg-gradient-to-b from-accent/40 via-white/10 to-transparent sm:block" />
+          <ol className="flex flex-col gap-10">
+            {STEPS.map((step, i) => (
+              <Reveal key={i} delay={0.06 * i}>
+                <li className="relative flex items-start gap-6">
+                  <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-[#040508] font-geist-mono text-xs text-accent">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p className="mt-2 text-sm leading-relaxed text-neutral-300 sm:text-base">{step}</p>
+                </li>
+              </Reveal>
+            ))}
+          </ol>
+        </div>
       </div>
     </section>
   );

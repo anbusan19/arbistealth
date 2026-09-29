@@ -8,6 +8,7 @@ import { parseUnits, type Address } from "viem";
 import { AppLayout } from "@/layouts/AppLayout";
 import { Panel } from "@/components/ui/Panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { Reveal } from "@/components/ui/Reveal";
 import {
   CONTRACTS,
   DEPLOY_BLOCK,
@@ -325,25 +326,35 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-medium text-white">Dashboard</h1>
-        <a
-          href={arbiscanAddressUrl(address)}
-          target="_blank"
-          rel="noreferrer"
-          className="font-geist-mono text-xs text-neutral-500 hover:text-accent"
-        >
-          {address.slice(0, 6)}…{address.slice(-4)} ↗
-        </a>
-      </div>
+      <Reveal>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-2xl font-medium text-white">Dashboard</h1>
+          <a
+            href={arbiscanAddressUrl(address)}
+            target="_blank"
+            rel="noreferrer"
+            className="font-geist-mono text-xs text-neutral-500 hover:text-accent"
+          >
+            {address.slice(0, 6)}…{address.slice(-4)} ↗
+          </a>
+        </div>
+      </Reveal>
 
       <div className="flex flex-col gap-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <AgentPanel address={address} />
-          <StealthStatusPanel address={address} />
+          <Reveal delay={0.05}>
+            <AgentPanel address={address} />
+          </Reveal>
+          <Reveal delay={0.1}>
+            <StealthStatusPanel address={address} />
+          </Reveal>
         </div>
-        <SubmitIntentPanel address={address} />
-        <MyIntentsPanel address={address} />
+        <Reveal delay={0.15}>
+          <SubmitIntentPanel address={address} />
+        </Reveal>
+        <Reveal delay={0.2}>
+          <MyIntentsPanel address={address} />
+        </Reveal>
       </div>
     </AppLayout>
   );

@@ -6,6 +6,7 @@ import type { Log } from "viem";
 import { AppLayout } from "@/layouts/AppLayout";
 import { Panel } from "@/components/ui/Panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { Reveal } from "@/components/ui/Reveal";
 import {
   AGENT_REGISTERED_EVENT,
   ANNOUNCEMENT_EVENT,
@@ -40,6 +41,19 @@ const KIND_COLOR: Record<FeedItem["kind"], string> = {
   "Stealth Announcement": "text-fuchsia-300",
   "Agent Registered": "text-emerald-300",
 };
+
+function LoadingSkeleton() {
+  return (
+    <div className="flex flex-col divide-y divide-white/10">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex items-center gap-3 px-6 py-4 sm:px-8">
+          <div className="h-3 w-24 animate-pulse rounded bg-white/10" />
+          <div className="h-3 w-48 animate-pulse rounded bg-white/5" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Explorer() {
   const publicClient = usePublicClient();
@@ -107,40 +121,58 @@ export default function Explorer() {
 
   return (
     <AppLayout>
-      <h1 className="mb-2 text-2xl font-medium text-white">Explorer</h1>
-      <p className="mb-8 text-sm text-neutral-400">
-        Live protocol activity on Arbitrum Sepolia — read directly from the deployed contracts, no indexer required.
-      </p>
+      <Reveal>
+        <div className="mb-8 flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-medium text-white">Explorer</h1>
+          <span className="flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 font-geist-mono text-[10px] tracking-wide text-emerald-300">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            </span>
+            LIVE
+          </span>
+        </div>
+      </Reveal>
+      <Reveal delay={0.05}>
+        <p className="mb-8 max-w-2xl text-sm text-neutral-400">
+          Live protocol activity on Arbitrum Sepolia — read directly from the deployed contracts, no indexer
+          required.
+        </p>
+      </Reveal>
 
-      <SectionLabel>Recent Activity</SectionLabel>
+      <Reveal delay={0.1}>
+        <SectionLabel>Recent Activity</SectionLabel>
+      </Reveal>
 
-      <Panel className="mt-6 divide-y divide-white/10">
-        {isLoading && <div className="px-6 py-8 text-sm text-neutral-500">Scanning chain history…</div>}
-        {error && <div className="px-6 py-8 text-sm text-red-400">{(error as Error).message}</div>}
-        {!isLoading && data?.length === 0 && (
-          <div className="px-6 py-8 text-sm text-neutral-500">
-            No activity yet — submit an intent from the Dashboard to see it appear here.
-          </div>
-        )}
-
-        {data?.map((item) => (
-          <a
-            key={`${item.transactionHash}-${item.logIndex}`}
-            href={arbiscanTxUrl(item.transactionHash)}
-            target="_blank"
-            rel="noreferrer"
-            className="flex flex-col gap-1 px-6 py-4 hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between sm:px-8"
-          >
-            <div className="flex items-center gap-3">
-              <span className={`font-geist-mono text-[10px] tracking-wide uppercase ${KIND_COLOR[item.kind]}`}>
-                {item.kind}
-              </span>
-              <span className="text-sm text-neutral-300">{item.detail}</span>
+      <Reveal delay={0.15}>
+        <Panel className="mt-6 divide-y divide-white/10">
+          {isLoading && <LoadingSkeleton />}
+          {error && <div className="px-6 py-8 text-sm text-red-400">{(error as Error).message}</div>}
+          {!isLoading && data?.length === 0 && (
+            <div className="px-6 py-8 text-sm text-neutral-500">
+              No activity yet — submit an intent from the Dashboard to see it appear here.
             </div>
-            <span className="font-geist-mono text-xs text-neutral-600">block {item.blockNumber.toString()}</span>
-          </a>
-        ))}
-      </Panel>
+          )}
+
+          {data?.map((item) => (
+            <a
+              key={`${item.transactionHash}-${item.logIndex}`}
+              href={arbiscanTxUrl(item.transactionHash)}
+              target="_blank"
+              rel="noreferrer"
+              className="flex flex-col gap-1 px-6 py-4 transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between sm:px-8"
+            >
+              <div className="flex items-center gap-3">
+                <span className={`font-geist-mono text-[10px] tracking-wide uppercase ${KIND_COLOR[item.kind]}`}>
+                  {item.kind}
+                </span>
+                <span className="text-sm text-neutral-300">{item.detail}</span>
+              </div>
+              <span className="font-geist-mono text-xs text-neutral-600">block {item.blockNumber.toString()}</span>
+            </a>
+          ))}
+        </Panel>
+      </Reveal>
     </AppLayout>
   );
 }
