@@ -3,6 +3,7 @@
 import { Radio, ShieldOff, UserX, Link2Off } from "lucide-react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
+import GlareHover from "../components/ui/GlareHover";
 
 const PROBLEMS = [
   {
@@ -44,13 +45,25 @@ export function Problem() {
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {PROBLEMS.map((p, i) => (
             <Reveal key={p.title} delay={0.08 * i}>
-              <div className="group h-full rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors duration-300 hover:border-accent/30 hover:bg-white/[0.04]">
+              <GlareHover
+                width="100%"
+                height="100%"
+                background="rgba(255,255,255,0.02)"
+                borderColor="rgba(255,255,255,0.1)"
+                borderRadius="1rem"
+                glareColor="#6e87ed"
+                glareOpacity={0.2}
+                glareAngle={-30}
+                glareSize={300}
+                transitionDuration={600}
+                className="group h-full p-6"
+              >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent transition-transform duration-300 group-hover:scale-110">
                   <p.icon size={18} strokeWidth={1.75} />
                 </div>
                 <h3 className="mt-5 text-base font-medium text-white">{p.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-neutral-400">{p.body}</p>
-              </div>
+              </GlareHover>
             </Reveal>
           ))}
         </div>

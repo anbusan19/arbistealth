@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
+import CountUp from "../components/ui/CountUp";
 import { CONTRACTS, arbiscanAddressUrl } from "../lib/contracts";
 
 const LABELS: Record<keyof typeof CONTRACTS, string> = {
@@ -60,7 +61,7 @@ export function LiveDeployment() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
               </span>
-              {KEYS.length} CONTRACTS LIVE
+              <CountUp to={KEYS.length} duration={1.2} /> CONTRACTS LIVE
             </span>
           </Reveal>
         </div>

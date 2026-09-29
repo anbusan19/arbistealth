@@ -3,6 +3,7 @@
 import { EyeOff, Fingerprint, Zap } from "lucide-react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
+import GlareHover from "../components/ui/GlareHover";
 
 const PILLARS = [
   {
@@ -51,14 +52,26 @@ export function Solution() {
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {PILLARS.map((pillar, i) => (
             <Reveal key={pillar.tag} delay={0.08 * i}>
-              <div className="group h-full rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:bg-white/[0.04] sm:p-8">
+              <GlareHover
+                width="100%"
+                height="100%"
+                background="rgba(255,255,255,0.02)"
+                borderColor="rgba(255,255,255,0.1)"
+                borderRadius="1rem"
+                glareColor="#6e87ed"
+                glareOpacity={0.2}
+                glareAngle={-30}
+                glareSize={300}
+                transitionDuration={600}
+                className="group h-full p-6 transition-transform duration-300 hover:-translate-y-1 sm:p-8"
+              >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent transition-transform duration-300 group-hover:scale-110">
                   <pillar.icon size={18} strokeWidth={1.75} />
                 </div>
                 <div className="mt-5 font-geist-mono text-[10px] tracking-[0.2em] text-accent/80">{pillar.tag}</div>
                 <div className="mt-2 font-geist-mono text-sm text-white">{pillar.standard}</div>
                 <p className="mt-4 text-sm leading-relaxed text-neutral-400">{pillar.body}</p>
-              </div>
+              </GlareHover>
             </Reveal>
           ))}
         </div>

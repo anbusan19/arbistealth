@@ -9,6 +9,7 @@ import { AppLayout } from "@/layouts/AppLayout";
 import { Panel } from "@/components/ui/Panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/ui/Reveal";
+import CountUp from "@/components/ui/CountUp";
 import {
   CONTRACTS,
   DEPLOY_BLOCK,
@@ -66,11 +67,15 @@ function AgentPanel({ address }: { address: Address }) {
         <div className="mt-6 grid grid-cols-2 gap-6">
           <div>
             <div className="font-geist-mono text-[10px] tracking-wide text-neutral-500">AGENT ID</div>
-            <div className="mt-1 font-geist-mono text-lg text-white">#{agentId.data?.toString()}</div>
+            <div className="mt-1 font-geist-mono text-lg text-white">
+              #<CountUp to={Number(agentId.data ?? 0n)} duration={1} />
+            </div>
           </div>
           <div>
             <div className="font-geist-mono text-[10px] tracking-wide text-neutral-500">REPUTATION ENTRIES</div>
-            <div className="mt-1 font-geist-mono text-lg text-white">{reputation.data?.toString() ?? "—"}</div>
+            <div className="mt-1 font-geist-mono text-lg text-white">
+              <CountUp to={Number(reputation.data ?? 0n)} duration={1} />
+            </div>
           </div>
         </div>
       ) : (
