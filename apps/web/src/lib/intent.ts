@@ -1,6 +1,7 @@
 import type { Address } from "viem";
+import { CHAIN_ID, CONTRACTS } from "./contracts";
 
-/** Mirrors IntentRegistry.Intent (contracts) and Intent (relayer) field-for-field. */
+/** Mirrors IntentRegistry.Intent field-for-field. */
 export interface Intent {
   user: Address;
   tokenIn: Address;
@@ -11,7 +12,6 @@ export interface Intent {
   expiry: bigint;
 }
 
-/** EIP-712 type definition matching IntentRegistry's INTENT_TYPEHASH. */
 export const INTENT_TYPES = {
   Intent: [
     { name: "user", type: "address" },
@@ -26,24 +26,13 @@ export const INTENT_TYPES = {
 
 export const INTENT_PRIMARY_TYPE = "Intent" as const;
 
-export interface IntentDomain {
-  name: "ArbiStealthIntentRegistry";
-  version: "1";
-  chainId: number;
-  verifyingContract: Address;
-}
+export const INTENT_DOMAIN = {
+  name: "ArbiStealthIntentRegistry",
+  version: "1",
+  chainId: CHAIN_ID,
+  verifyingContract: CONTRACTS.intentRegistry,
+} as const;
 
-export function intentDomain(chainId: number, verifyingContract: Address): IntentDomain {
-  return { name: "ArbiStealthIntentRegistry", version: "1", chainId, verifyingContract };
-}
-
-/** JSON-safe wire representation of an Intent (bigints as decimal strings). */
-export function serializeIntent(intent: Intent) {
-  return {
-    ...intent,
-    amountIn: intent.amountIn.toString(),
-    minAmountOut: intent.minAmountOut.toString(),
-    nonce: intent.nonce.toString(),
-    expiry: intent.expiry.toString(),
-  };
+export function randomNonce(): bigint {
+  return BigInt(Date.now()) * BigInt(1000) + BigInt(Math.floor(Math.random() * 1000));
 }
