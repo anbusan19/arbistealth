@@ -24,3 +24,7 @@ export {
 } from "./intent.js";
 
 export { RelayerClient, type OpenIntent, type RelayerRuntimeConfig } from "./relayerClient.js";
+
+export { registerAgent, getAgentId, getAgentReputation } from "./agent.js";
+
+export { payWithX402 } from "./x402.js";
