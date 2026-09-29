@@ -30,7 +30,7 @@ const PROBLEMS = [
 export function Problem() {
   return (
     <section className="px-6 py-24 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[1600px]">
         <Reveal>
           <SectionLabel index="§1">The Problem</SectionLabel>
         </Reveal>

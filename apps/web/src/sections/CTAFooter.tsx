@@ -7,7 +7,7 @@ import { Reveal } from "../components/ui/Reveal";
 export function CTAFooter() {
   return (
     <section className="px-6 py-24 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[1600px]">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/15 via-white/[0.02] to-transparent p-10 sm:p-16">
             <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-accent/20 blur-3xl" />

@@ -25,6 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${plusJakartaSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <div className="dither-grain" aria-hidden="true" />
         <Providers>{children}</Providers>
       </body>
     </html>
