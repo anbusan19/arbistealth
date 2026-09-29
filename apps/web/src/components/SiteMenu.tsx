@@ -7,8 +7,6 @@ import { LineSidebar } from "./ui/LineSidebar";
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/explorer", label: "Explorer" },
-  { href: "/settings", label: "Settings" },
 ];
 
 /** Replaces the old top Nav bar entirely: just a hamburger icon, fixed
