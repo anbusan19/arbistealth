@@ -11,3 +11,16 @@ export {
   type ScanParams,
   type RecoverPrivateKeyParams,
 } from "./stealth.js";
+
+export {
+  INTENT_TYPES,
+  INTENT_PRIMARY_TYPE,
+  intentDomain,
+  hashIntent,
+  verifyIntentSignature,
+  serializeIntent,
+  type Intent,
+  type IntentDomain,
+} from "./intent.js";
+
+export { RelayerClient, type OpenIntent, type RelayerRuntimeConfig } from "./relayerClient.js";
