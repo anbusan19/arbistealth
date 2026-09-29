@@ -2,24 +2,21 @@
 
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 
-export function ConnectButton() {
+export function ConnectButton({ className = "" }: { className?: string }) {
   const { address, isConnected } = useAccount();
   const { connectors, connect, isPending } = useConnect();
   const { disconnect } = useDisconnect();
 
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-3 text-sm">
-        <span className="font-mono">
-          {address.slice(0, 6)}…{address.slice(-4)}
-        </span>
-        <button
-          onClick={() => disconnect()}
-          className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5"
-        >
-          Disconnect
-        </button>
-      </div>
+      <button
+        onClick={() => disconnect()}
+        className={`group flex items-center gap-2 border border-white/10 bg-white/[0.02] px-3 py-1.5 font-geist-mono text-xs text-neutral-300 hover:border-cyan-400/40 hover:text-white ${className}`}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+        {address.slice(0, 6)}…{address.slice(-4)}
+        <span className="text-neutral-600 group-hover:text-neutral-400">disconnect</span>
+      </button>
     );
   }
 
@@ -29,9 +26,9 @@ export function ConnectButton() {
     <button
       onClick={() => connector && connect({ connector })}
       disabled={!connector || isPending}
-      className="rounded-md bg-black px-4 py-1.5 text-sm text-white hover:bg-black/80 disabled:opacity-50"
+      className={`border border-cyan-400/40 bg-cyan-400/5 px-3 py-1.5 font-geist-mono text-xs tracking-wide text-cyan-300 hover:bg-cyan-400/10 disabled:opacity-40 ${className}`}
     >
-      {isPending ? "Connecting…" : "Connect Wallet"}
+      {isPending ? "CONNECTING…" : "CONNECT WALLET"}
     </button>
   );
 }
