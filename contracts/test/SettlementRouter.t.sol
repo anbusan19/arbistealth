@@ -12,11 +12,9 @@ import {FeeVault} from "../src/FeeVault.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
 import {MockERC5564Announcer} from "./mocks/MockERC5564Announcer.sol";
 import {MockERC6538Registry} from "./mocks/MockERC6538Registry.sol";
-import {
-    MockERC8004IdentityRegistry,
-    MockERC8004ReputationRegistry,
-    MockERC8004ValidationRegistry
-} from "./mocks/MockERC8004Registries.sol";
+import {SimpleAgentIdentityRegistry} from "../src/SimpleAgentIdentityRegistry.sol";
+import {SimpleAgentReputationRegistry} from "../src/SimpleAgentReputationRegistry.sol";
+import {SimpleAgentValidationRegistry} from "../src/SimpleAgentValidationRegistry.sol";
 
 contract SettlementRouterTest is Test {
     SettlementRouter public router;
@@ -28,9 +26,9 @@ contract SettlementRouterTest is Test {
 
     MockERC6538Registry public metaRegistry;
     MockERC5564Announcer public announcer;
-    MockERC8004IdentityRegistry public identityRegistry;
-    MockERC8004ReputationRegistry public reputationRegistry;
-    MockERC8004ValidationRegistry public validationRegistry;
+    SimpleAgentIdentityRegistry public identityRegistry;
+    SimpleAgentReputationRegistry public reputationRegistry;
+    SimpleAgentValidationRegistry public validationRegistry;
 
     MockERC20 public tokenIn;
     MockERC20 public tokenOut;
@@ -50,12 +48,13 @@ contract SettlementRouterTest is Test {
         announcer = new MockERC5564Announcer();
         stealthAnnouncer = new StealthAnnouncerAdapter(address(announcer));
 
-        identityRegistry = new MockERC8004IdentityRegistry();
-        reputationRegistry = new MockERC8004ReputationRegistry();
-        validationRegistry = new MockERC8004ValidationRegistry();
+        identityRegistry = new SimpleAgentIdentityRegistry();
+        reputationRegistry = new SimpleAgentReputationRegistry(address(this));
+        validationRegistry = new SimpleAgentValidationRegistry();
         agentIdentity = new AgentIdentityAdapter(
             address(identityRegistry), address(reputationRegistry), address(validationRegistry), address(this)
         );
+        reputationRegistry.setAdapter(address(agentIdentity));
 
         tokenIn = new MockERC20();
         tokenOut = new MockERC20();

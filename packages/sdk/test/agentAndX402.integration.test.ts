@@ -60,8 +60,11 @@ beforeAll(async () => {
   [account] = await bootstrapClient.getAddresses();
   walletClient = createWalletClient({ chain: anvilChain, transport: http(anvil.rpcUrl), account });
 
-  identityRegistry = await deploy(loadArtifact("MockERC8004Registries.sol", "MockERC8004IdentityRegistry"));
-  reputationRegistry = await deploy(loadArtifact("MockERC8004Registries.sol", "MockERC8004ReputationRegistry"));
+  identityRegistry = await deploy(loadArtifact("SimpleAgentIdentityRegistry.sol", "SimpleAgentIdentityRegistry"));
+  reputationRegistry = await deploy(
+    loadArtifact("SimpleAgentReputationRegistry.sol", "SimpleAgentReputationRegistry"),
+    [account]
+  );
   token = await deploy(loadArtifact("MockERC20.sol", "MockERC20"));
   feeVault = await deploy(loadArtifact("FeeVault.sol", "FeeVault"), [account, token]);
   announcer = await deploy(loadArtifact("MockERC5564Announcer.sol", "MockERC5564Announcer"));

@@ -3,29 +3,28 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {AgentIdentityAdapter} from "../src/AgentIdentityAdapter.sol";
-import {
-    MockERC8004IdentityRegistry,
-    MockERC8004ReputationRegistry,
-    MockERC8004ValidationRegistry
-} from "./mocks/MockERC8004Registries.sol";
+import {SimpleAgentIdentityRegistry} from "../src/SimpleAgentIdentityRegistry.sol";
+import {SimpleAgentReputationRegistry} from "../src/SimpleAgentReputationRegistry.sol";
+import {SimpleAgentValidationRegistry} from "../src/SimpleAgentValidationRegistry.sol";
 
 contract AgentIdentityAdapterTest is Test {
     AgentIdentityAdapter public adapter;
-    MockERC8004IdentityRegistry public identityRegistry;
-    MockERC8004ReputationRegistry public reputationRegistry;
-    MockERC8004ValidationRegistry public validationRegistry;
+    SimpleAgentIdentityRegistry public identityRegistry;
+    SimpleAgentReputationRegistry public reputationRegistry;
+    SimpleAgentValidationRegistry public validationRegistry;
 
     address internal agent = address(0xA6E47);
     address internal router = address(0x1234);
 
     function setUp() public {
-        identityRegistry = new MockERC8004IdentityRegistry();
-        reputationRegistry = new MockERC8004ReputationRegistry();
-        validationRegistry = new MockERC8004ValidationRegistry();
+        identityRegistry = new SimpleAgentIdentityRegistry();
+        reputationRegistry = new SimpleAgentReputationRegistry(address(this));
+        validationRegistry = new SimpleAgentValidationRegistry();
         adapter = new AgentIdentityAdapter(
             address(identityRegistry), address(reputationRegistry), address(validationRegistry), address(this)
         );
         adapter.setRouter(router);
+        reputationRegistry.setAdapter(address(adapter));
     }
 
     function test_IsRegisteredAgent_FalseBeforeRegistration() public view {
