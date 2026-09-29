@@ -9,7 +9,15 @@ export function Hero() {
   return (
     <div className="relative flex min-h-[calc(100vh-65px)] w-full flex-col justify-end overflow-hidden p-6 select-none sm:p-10 lg:p-12">
       <div className="absolute inset-0 z-0">
-        <PortalFieldCollection variant="bell-field" speed={1.0} brightness={1.0} opacity={1.0} hue={0} saturation={1.0} />
+        <PortalFieldCollection
+          speed={1.0}
+          size={1.0}
+          length={1.0}
+          opacity={1.0}
+          hue={0}
+          saturation={1.0}
+          brightness={1.0}
+        />
       </div>
 
       <div className="relative z-10 flex w-full max-w-[760px] flex-col items-end self-end pointer-events-auto">
