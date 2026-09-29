@@ -1,24 +1,24 @@
 {
   "chainId": 421614,
   "network": "arbitrum-sepolia",
-  "deployedAt": null,
-  "deployer": null,
+  "deployedAt": "2026-09-29T09:52:00Z",
+  "deployer": "0x4C0949f9e4Cc872CAd011De0B1878daA75853C8a",
   "externalRegistries": {
-    "erc5564Announcer": null,
-    "erc6538Registry": null
+    "erc5564Announcer": "0x55649E01B5Df198D18D95b5cc5051630cfD45564",
+    "erc6538Registry": "0x6538E6bf4B0eBd30A8Ea093027Ac2422ce5d6538"
   },
   "contracts": {
-    "IntentRegistry": null,
-    "StealthAnnouncerAdapter": null,
-    "StealthMetaRegistryAdapter": null,
-    "SimpleAgentIdentityRegistry": null,
-    "SimpleAgentReputationRegistry": null,
-    "SimpleAgentValidationRegistry": null,
-    "AgentIdentityAdapter": null,
-    "FeeVault": null,
-    "SettlementRouter": null
+    "IntentRegistry": "0xD64d45447eac2607F42C7d4535279BC13ecB8ADC",
+    "StealthAnnouncerAdapter": "0x7dD7619dC9b1F4ECB2a8ef658B7e820da4009347",
+    "StealthMetaRegistryAdapter": "0x1444ba359aD12523c5F9B1379a935f4176539402",
+    "SimpleAgentIdentityRegistry": "0xB85B0700c2AE0Cb61467CB1eFe331E3a80473684",
+    "SimpleAgentReputationRegistry": "0x26d73f03D635815a10c8C7fFbd0737120C9d19FC",
+    "SimpleAgentValidationRegistry": "0x2DbcE219E8904F94791D50680bf67Dd49df1c388",
+    "AgentIdentityAdapter": "0x95f5FBB4D5fF90b0F2FB1B539a2D307bF2c25d53",
+    "FeeVault": "0x187f18a3752d60bc1418351933E31346Ae50EC92",
+    "SettlementRouter": "0x6b7866727B3D10598aEC1334f939Ce942f9907c9"
   },
   "externalTokens": {
-    "usdg": null
+    "usdg": "0xFFC95faa3d63Cde504a05B567C600B78C0b41892"
   }
 }
