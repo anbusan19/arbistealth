@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useAccount, usePublicClient, useReadContract, useSignTypedData, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useReadContract,
+  useSignTypedData,
+  useSwitchChain,
+  useWriteContract,
+} from "wagmi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { parseUnits, type Address, type Log } from "viem";
 import { AppLayout } from "@/layouts/AppLayout";
@@ -563,8 +570,29 @@ function ExplorerFeedPanel() {
   );
 }
 
+function NetworkGuard() {
+  const { switchChain, isPending, error } = useSwitchChain();
+
+  return (
+    <Panel className="mx-auto max-w-md p-8 text-center">
+      <p className="text-sm text-neutral-400">
+        Your wallet is connected to the wrong network. ArbiStealth runs on Arbitrum Sepolia — switch to see real
+        balances and gas costs.
+      </p>
+      <button
+        onClick={() => switchChain({ chainId: CHAIN_ID })}
+        disabled={isPending}
+        className="mt-6 inline-block border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40"
+      >
+        {isPending ? "SWITCHING…" : "SWITCH TO ARBITRUM SEPOLIA"}
+      </button>
+      {error && <p className="mt-3 text-xs text-red-400">{error.message}</p>}
+    </Panel>
+  );
+}
+
 export default function Dashboard() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
 
   if (!isConnected || !address) {
     return (
@@ -578,6 +606,14 @@ export default function Dashboard() {
             CONNECT WALLET
           </Link>
         </Panel>
+      </AppLayout>
+    );
+  }
+
+  if (chainId !== CHAIN_ID) {
+    return (
+      <AppLayout>
+        <NetworkGuard />
       </AppLayout>
     );
   }
