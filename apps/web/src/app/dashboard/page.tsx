@@ -115,7 +115,7 @@ function StealthKeysPanel({ address }: { address: Address }) {
   const [txHash, setTxHash] = useState<string | null>(null);
 
   const onChain = useReadContract({
-    address: CONTRACTS.stealthMetaRegistry,
+    address: EXTERNAL.erc6538Registry,
     abi: erc6538RegistryAbi,
     functionName: "stealthMetaAddressOf",
     args: [address, 1n],
@@ -134,7 +134,7 @@ function StealthKeysPanel({ address }: { address: Address }) {
       if (!keys) throw new Error("Generate keys first");
       setTxHash(null);
       const hash = await writeContractAsync({
-        address: CONTRACTS.stealthMetaRegistry,
+        address: EXTERNAL.erc6538Registry,
         abi: erc6538RegistryAbi,
         functionName: "registerKeys",
         args: [1n, keys.metaAddress],
