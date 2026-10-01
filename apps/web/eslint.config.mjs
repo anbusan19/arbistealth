@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
     "src/components/TechText.tsx",
     "src/components/DecryptedText.tsx",
     "src/components/ui/LineSidebar.tsx",
+    "src/components/ui/PixelBlast.jsx",
   ]),
 ]);
 

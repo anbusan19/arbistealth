@@ -621,15 +621,29 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <Reveal>
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-2xl font-medium text-white">Dashboard</h1>
+        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 font-geist-mono text-[10px] tracking-[0.25em] text-accent/80 uppercase">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+              </span>
+              Your Workspace
+            </div>
+            <h1 className="mt-3 text-3xl font-medium tracking-tight text-white sm:text-4xl">Dashboard</h1>
+            <p className="mt-2 max-w-lg text-sm text-neutral-400">
+              Identity, privacy keys, and live settlement activity for your agent — everything reads directly
+              from Arbitrum Sepolia.
+            </p>
+          </div>
           <a
             href={arbiscanAddressUrl(address)}
             target="_blank"
             rel="noreferrer"
-            className="font-geist-mono text-xs text-neutral-500 hover:text-accent"
+            className="inline-flex shrink-0 items-center gap-2 self-start border border-white/10 bg-white/[0.03] px-4 py-2 font-geist-mono text-xs text-neutral-300 backdrop-blur-xl hover:border-accent/40 hover:text-white sm:self-auto"
           >
-            {address.slice(0, 6)}…{address.slice(-4)} ↗
+            {address.slice(0, 6)}…{address.slice(-4)}
+            <span className="text-accent">↗</span>
           </a>
         </div>
       </Reveal>

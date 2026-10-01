@@ -12,7 +12,7 @@ interface PanelProps extends HTMLAttributes<HTMLDivElement> {
 export function Panel({ children, corners = true, dither = false, className = "", ...props }: PanelProps) {
   return (
     <div
-      className={`relative border border-white/10 bg-white/[0.02] transition-colors duration-300 hover:border-accent/25 ${className}`}
+      className={`relative border border-white/10 bg-white/[0.035] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset] backdrop-blur-xl transition-colors duration-300 hover:border-accent/25 ${className}`}
       {...props}
     >
       {dither && (
