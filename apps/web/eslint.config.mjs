@@ -19,6 +19,7 @@ const eslintConfig = defineConfig([
     "src/components/DecryptedText.tsx",
     "src/components/ui/LineSidebar.tsx",
     "src/components/ui/PixelBlast.jsx",
+    "src/components/ui/TargetCursor.jsx",
   ]),
 ]);
 
