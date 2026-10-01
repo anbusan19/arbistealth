@@ -13,7 +13,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { parseUnits, type Address, type Log } from "viem";
 import { AppLayout } from "@/layouts/AppLayout";
-import TargetCursor from "@/components/ui/TargetCursor";
 import { Panel } from "@/components/ui/Panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/ui/Reveal";
@@ -85,14 +84,17 @@ function AgentPanel({ address }: { address: Address }) {
           <Loader size="sm" label="READING IDENTITY REGISTRY…" />
         </div>
       ) : isRegistered ? (
-        <div className="mt-6 grid grid-cols-2 gap-6">
-          <div>
-            <div className="font-geist-mono text-[10px] tracking-wide text-neutral-500">AGENT ID</div>
-            <div className="mt-1 font-geist-mono text-lg text-white">
-              #<CountUp to={Number(agentId.data ?? 0n)} duration={1} />
-            </div>
+        <div className="mt-6 flex flex-1 flex-col justify-between">
+          <div className="flex items-center gap-2 font-geist-mono text-[10px] tracking-wide text-emerald-300 uppercase">
+            <span>✓</span>
+            ERC-8004 Registered Agent
           </div>
-          <div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="font-geist-mono text-4xl text-white">
+              #<CountUp to={Number(agentId.data ?? 0n)} duration={1} />
+            </span>
+          </div>
+          <div className="mt-4 border border-white/10 bg-white/[0.02] p-3">
             <div className="font-geist-mono text-[10px] tracking-wide text-neutral-500">REPUTATION ENTRIES</div>
             <div className="mt-1 font-geist-mono text-lg text-white">
               <CountUp to={Number(reputation.data ?? 0n)} duration={1} />
@@ -105,7 +107,7 @@ function AgentPanel({ address }: { address: Address }) {
           <button
             onClick={() => register.mutate()}
             disabled={isPending}
-            className="cursor-target shrink-0 border border-accent/50 bg-accent/10 px-4 py-2 font-geist-mono text-xs text-accent-light hover:bg-accent/20 disabled:opacity-40"
+            className="shrink-0 border border-accent/50 bg-accent/10 px-4 py-2 font-geist-mono text-xs text-accent-light hover:bg-accent/20 disabled:opacity-40"
           >
             {isPending ? "REGISTERING…" : "REGISTER AGENT"}
           </button>
@@ -121,6 +123,7 @@ function StealthKeysPanel({ address }: { address: Address }) {
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [isRevealed, setIsRevealed] = useState(false);
 
   const onChain = useReadContract({
     address: EXTERNAL.erc6538Registry,
@@ -187,20 +190,48 @@ function StealthKeysPanel({ address }: { address: Address }) {
               <div className="mt-1 truncate font-geist-mono text-xs text-white">{keys.metaAddress}</div>
             </div>
           )}
+
+          {keys && (
+            <div className="mt-6 border-t border-white/10 pt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-geist-mono text-[10px] tracking-wide text-neutral-500">
+                    VIEWING PRIVATE KEY
+                  </span>
+                  <span className="border border-red-900/50 bg-red-950/40 px-1.5 py-0.5 font-geist-mono text-[9px] tracking-wide text-red-400 uppercase">
+                    Sensitive
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsRevealed((v) => !v)}
+                  className="font-geist-mono text-[10px] text-accent hover:underline"
+                >
+                  {isRevealed ? "HIDE" : "REVEAL"}
+                </button>
+              </div>
+              <div className="mt-2 truncate border border-white/10 bg-black/20 p-3 font-geist-mono text-xs">
+                {isRevealed ? (
+                  <span className="text-white">{keys.viewingPrivateKey}</span>
+                ) : (
+                  <span className="text-neutral-600 italic">•••••••••••••••••••••••••••••••••••••••••</span>
+                )}
+              </div>
+            </div>
+          )}
         </>
       )}
 
       <div className="mt-6 flex flex-wrap gap-3">
         <button
           onClick={generate}
-          className="cursor-target border border-white/10 px-4 py-2 font-geist-mono text-xs text-neutral-300 hover:border-accent/40 hover:text-white"
+          className="border border-white/10 px-4 py-2 font-geist-mono text-xs text-neutral-300 hover:border-accent/40 hover:text-white"
         >
           {keys ? "REGENERATE KEYS" : "GENERATE KEYS"}
         </button>
         <button
           onClick={() => register.mutate()}
           disabled={!keys || register.isPending}
-          className="cursor-target border border-accent/50 bg-accent/10 px-4 py-2 font-geist-mono text-xs text-accent-light hover:bg-accent/20 disabled:opacity-40"
+          className="border border-accent/50 bg-accent/10 px-4 py-2 font-geist-mono text-xs text-accent-light hover:bg-accent/20 disabled:opacity-40"
         >
           {register.isPending ? "REGISTERING…" : "REGISTER ON-CHAIN"}
         </button>
@@ -212,7 +243,7 @@ function StealthKeysPanel({ address }: { address: Address }) {
           href={arbiscanTxUrl(txHash)}
           target="_blank"
           rel="noreferrer"
-          className="cursor-target mt-3 block font-geist-mono text-xs text-accent underline underline-offset-4"
+          className="mt-3 block font-geist-mono text-xs text-accent underline underline-offset-4"
         >
           View transaction on Arbiscan →
         </a>
@@ -364,7 +395,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
           <button
             type="submit"
             disabled={isPending}
-            className="cursor-target flex w-full items-center justify-center gap-3 border border-accent/50 bg-accent/10 py-3 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40 sm:w-auto sm:px-6"
+            className="flex w-full items-center justify-center gap-3 border border-accent/50 bg-accent/10 py-3 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40 sm:w-auto sm:px-6"
           >
             {isPending ? <Loader size="sm" /> : null}
             {isPending ? "SIGNING & SUBMITTING…" : "SIGN & SUBMIT INTENT"}
@@ -378,7 +409,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
           href={arbiscanTxUrl(txHash)}
           target="_blank"
           rel="noreferrer"
-          className="cursor-target mt-4 block font-geist-mono text-xs text-accent underline underline-offset-4"
+          className="mt-4 block font-geist-mono text-xs text-accent underline underline-offset-4"
         >
           View transaction on Arbiscan →
         </a>
@@ -429,7 +460,7 @@ function MyIntentsPanel({ address }: { address: Address }) {
               href={arbiscanTxUrl(log.transactionHash)}
               target="_blank"
               rel="noreferrer"
-              className="cursor-target font-geist-mono text-xs text-accent hover:underline"
+              className="font-geist-mono text-xs text-accent hover:underline"
             >
               VIEW TX →
             </a>
@@ -446,6 +477,7 @@ interface FeedItem {
   transactionHash: `0x${string}`;
   logIndex: number;
   detail: string;
+  args: Record<string, unknown>;
 }
 
 function toFeedItem(kind: FeedItem["kind"], log: Log, detail: string): FeedItem {
@@ -455,6 +487,7 @@ function toFeedItem(kind: FeedItem["kind"], log: Log, detail: string): FeedItem 
     transactionHash: log.transactionHash as `0x${string}`,
     logIndex: log.logIndex ?? 0,
     detail,
+    args: (log as Log & { args: Record<string, unknown> }).args,
   };
 }
 
@@ -465,8 +498,30 @@ const KIND_COLOR: Record<FeedItem["kind"], string> = {
   "Agent Registered": "text-emerald-300",
 };
 
+const FEED_FILTERS = [
+  { label: "All", kinds: null },
+  { label: "Intents", kinds: ["Intent Submitted"] },
+  { label: "Settlements", kinds: ["Settlement Executed"] },
+  { label: "Announcements", kinds: ["Stealth Announcement"] },
+  { label: "Agents", kinds: ["Agent Registered"] },
+] as const satisfies readonly { label: string; kinds: readonly FeedItem["kind"][] | null }[];
+
+function stringifyArgs(args: Record<string, unknown>): string {
+  return JSON.stringify(args, (_key, value) => (typeof value === "bigint" ? value.toString() : value), 2);
+}
+
 function ExplorerFeedPanel() {
   const publicClient = usePublicClient();
+  const [activeFilter, setActiveFilter] = useState<(typeof FEED_FILTERS)[number]["label"]>("All");
+  const [search, setSearch] = useState("");
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [copiedTx, setCopiedTx] = useState<string | null>(null);
+
+  const handleCopy = (tx: string) => {
+    navigator.clipboard.writeText(tx);
+    setCopiedTx(tx);
+    setTimeout(() => setCopiedTx(null), 1500);
+  };
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["explorer-feed"],
@@ -529,10 +584,48 @@ function ExplorerFeedPanel() {
     refetchInterval: 15_000,
   });
 
+  const visible = (data ?? []).filter((item) => {
+    const filter = FEED_FILTERS.find((f) => f.label === activeFilter);
+    if (filter?.kinds && !(filter.kinds as readonly string[]).includes(item.kind)) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      return (
+        item.transactionHash.toLowerCase().includes(q) ||
+        item.detail.toLowerCase().includes(q) ||
+        item.blockNumber.toString().includes(q)
+      );
+    }
+    return true;
+  });
+
   return (
     <Panel className="p-6 sm:p-8">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <SectionLabel index="F">Recent Activity</SectionLabel>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-1 font-geist-mono text-[11px]">
+          {FEED_FILTERS.map((f) => (
+            <button
+              key={f.label}
+              onClick={() => setActiveFilter(f.label)}
+              className={`border px-2.5 py-1 whitespace-nowrap uppercase transition-colors ${
+                activeFilter === f.label
+                  ? "border-accent/50 bg-accent/10 text-accent-light"
+                  : "border-white/10 text-neutral-500 hover:text-white"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search tx or block…"
+          className="w-full border border-white/10 bg-transparent px-3 py-1.5 font-geist-mono text-[11px] text-white outline-none placeholder:text-neutral-600 focus:border-accent/40 sm:w-56"
+        />
       </div>
 
       {isLoading && (
@@ -541,31 +634,62 @@ function ExplorerFeedPanel() {
         </div>
       )}
       {error && <div className="mt-6 text-sm text-red-400">{(error as Error).message}</div>}
-      {!isLoading && data?.length === 0 && (
+      {!isLoading && visible.length === 0 && (
         <div className="mt-6 text-sm text-neutral-500">
-          No activity yet — submit an intent above to see it appear here.
+          {data?.length ? "No activity matches this filter." : "No activity yet — submit an intent above to see it appear here."}
         </div>
       )}
 
-      <ul className="mt-6 flex max-h-64 flex-col divide-y divide-white/10 overflow-y-auto">
-        {data?.map((item) => (
-          <li key={`${item.transactionHash}-${item.logIndex}`}>
-            <a
-              href={arbiscanTxUrl(item.transactionHash)}
-              target="_blank"
-              rel="noreferrer"
-              className="cursor-target flex flex-col gap-1 py-3 transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <span className={`font-geist-mono text-[10px] tracking-wide uppercase ${KIND_COLOR[item.kind]}`}>
-                  {item.kind}
+      <ul className="mt-4 flex max-h-80 flex-col divide-y divide-white/10 overflow-y-auto">
+        {visible.map((item) => {
+          const key = `${item.transactionHash}-${item.logIndex}`;
+          const isExpanded = expandedKey === key;
+          return (
+            <li key={key}>
+              <button
+                onClick={() => setExpandedKey(isExpanded ? null : key)}
+                className="flex w-full flex-col gap-1 py-3 text-left transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`font-geist-mono text-[10px] tracking-wide uppercase ${KIND_COLOR[item.kind]}`}>
+                    {item.kind}
+                  </span>
+                  <span className="text-sm text-neutral-300">{item.detail}</span>
+                </div>
+                <span className="font-geist-mono text-xs text-neutral-600">
+                  block {item.blockNumber.toString()}
                 </span>
-                <span className="text-sm text-neutral-300">{item.detail}</span>
-              </div>
-              <span className="font-geist-mono text-xs text-neutral-600">block {item.blockNumber.toString()}</span>
-            </a>
-          </li>
-        ))}
+              </button>
+
+              {isExpanded && (
+                <div className="space-y-2 border-t border-white/10 bg-black/20 p-4">
+                  <div className="flex items-center justify-between font-geist-mono text-[10px] text-neutral-500">
+                    <span>RAW LOG ARGS</span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleCopy(item.transactionHash)}
+                        className="text-accent hover:underline"
+                      >
+                        {copiedTx === item.transactionHash ? "COPIED" : "COPY TX"}
+                      </button>
+                      <a
+                        href={arbiscanTxUrl(item.transactionHash)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-accent hover:underline"
+                      >
+                        ARBISCAN ↗
+                      </a>
+                    </div>
+                  </div>
+                  <pre className="overflow-x-auto border border-white/10 bg-white/[0.02] p-3 font-geist-mono text-[11px] leading-relaxed text-neutral-300">
+                    {stringifyArgs(item.args)}
+                  </pre>
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </Panel>
   );
@@ -583,7 +707,7 @@ function NetworkGuard() {
       <button
         onClick={() => switchChain({ chainId: CHAIN_ID })}
         disabled={isPending}
-        className="cursor-target mt-6 inline-block border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40"
+        className="mt-6 inline-block border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40"
       >
         {isPending ? "SWITCHING…" : "SWITCH TO ARBITRUM SEPOLIA"}
       </button>
@@ -598,12 +722,11 @@ export default function Dashboard() {
   if (!isConnected || !address) {
     return (
       <AppLayout>
-        <TargetCursor cursorColor="#6e87ed" spinDuration={3} />
         <Panel className="mx-auto max-w-md p-8 text-center" dither>
           <p className="text-sm text-neutral-400">Connect a wallet to view your dashboard.</p>
           <Link
             href="/login"
-            className="cursor-target mt-6 inline-block border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20"
+            className="mt-6 inline-block border border-accent/50 bg-accent/10 px-5 py-2.5 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20"
           >
             CONNECT WALLET
           </Link>
@@ -615,7 +738,6 @@ export default function Dashboard() {
   if (chainId !== CHAIN_ID) {
     return (
       <AppLayout>
-        <TargetCursor cursorColor="#6e87ed" spinDuration={3} />
         <NetworkGuard />
       </AppLayout>
     );
@@ -623,7 +745,6 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <TargetCursor cursorColor="#6e87ed" spinDuration={3} />
       <Reveal>
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -644,7 +765,7 @@ export default function Dashboard() {
             href={arbiscanAddressUrl(address)}
             target="_blank"
             rel="noreferrer"
-            className="cursor-target inline-flex shrink-0 items-center gap-2 self-start border border-white/10 bg-white/[0.03] px-4 py-2 font-geist-mono text-xs text-neutral-300 backdrop-blur-xl hover:border-accent/40 hover:text-white sm:self-auto"
+            className="inline-flex shrink-0 items-center gap-2 self-start border border-white/10 bg-white/[0.03] px-4 py-2 font-geist-mono text-xs text-neutral-300 backdrop-blur-xl hover:border-accent/40 hover:text-white sm:self-auto"
           >
             {address.slice(0, 6)}…{address.slice(-4)}
             <span className="text-accent">↗</span>
