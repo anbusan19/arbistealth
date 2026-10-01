@@ -529,7 +529,7 @@ function ExplorerFeedPanel() {
   });
 
   return (
-    <Panel className="p-6 sm:p-8">
+    <Panel className="p-6 sm:p-8" dither>
       <div className="flex items-center gap-3">
         <SectionLabel index="F">Recent Activity</SectionLabel>
       </div>
@@ -574,7 +574,7 @@ function NetworkGuard() {
   const { switchChain, isPending, error } = useSwitchChain();
 
   return (
-    <Panel className="mx-auto max-w-md p-8 text-center">
+    <Panel className="mx-auto max-w-md p-8 text-center" dither>
       <p className="text-sm text-neutral-400">
         Your wallet is connected to the wrong network. ArbiStealth runs on Arbitrum Sepolia — switch to see real
         balances and gas costs.
@@ -597,7 +597,7 @@ export default function Dashboard() {
   if (!isConnected || !address) {
     return (
       <AppLayout>
-        <Panel className="mx-auto max-w-md p-8 text-center">
+        <Panel className="mx-auto max-w-md p-8 text-center" dither>
           <p className="text-sm text-neutral-400">Connect a wallet to view your dashboard.</p>
           <Link
             href="/login"
@@ -636,7 +636,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Reveal delay={0.02} className="lg:col-span-2">
-          <Panel className="h-full">
+          <Panel className="h-full" dither>
             <BlockNumberStat />
           </Panel>
         </Reveal>
