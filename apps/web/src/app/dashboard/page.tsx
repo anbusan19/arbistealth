@@ -529,7 +529,7 @@ function ExplorerFeedPanel() {
   });
 
   return (
-    <Panel className="p-6 sm:p-8" dither>
+    <Panel className="p-6 sm:p-8">
       <div className="flex items-center gap-3">
         <SectionLabel index="F">Recent Activity</SectionLabel>
       </div>
@@ -650,7 +650,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Reveal delay={0.02} className="lg:col-span-2">
-          <Panel className="h-full" dither>
+          <Panel className="h-full">
             <BlockNumberStat />
           </Panel>
         </Reveal>
