@@ -29,12 +29,34 @@ import {
   http,
   parseUnits,
   toHex,
+  type Account,
   type Address,
   type Hex,
+  type PublicClient,
+  type Transport,
+  type WalletClient,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
+
+type AppPublicClient = PublicClient<Transport, typeof arbitrumSepolia>;
+type AppWalletClient = WalletClient<Transport, typeof arbitrumSepolia, Account>;
 import { parseMetaAddress, computeStealthOutput } from "../../../packages/sdk/src/stealth.js";
+
+/**
+ * Arbitrum Sepolia's base fee moves every block (~0.25s) and the default
+ * maxFeePerGas estimate leaves no headroom above it, so a write submitted
+ * even a block late reverts with "max fee per gas less than block base
+ * fee" — confirmed happening in practice (see the conversation that added
+ * this). Pad the estimate by 50% so a write survives a few blocks of drift.
+ */
+async function bufferedFees(publicClient: AppPublicClient) {
+  const { maxFeePerGas, maxPriorityFeePerGas } = await publicClient.estimateFeesPerGas();
+  return {
+    maxFeePerGas: ((maxFeePerGas ?? 0n) * 150n) / 100n,
+    maxPriorityFeePerGas,
+  };
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "../../..");
@@ -223,6 +245,7 @@ async function main() {
       args: ["ipfs://arbistealth-solver-card"],
       account,
       chain: arbitrumSepolia,
+      ...(await bufferedFees(publicClient)),
     });
     await publicClient.waitForTransactionReceipt({ hash });
     agentId = await publicClient.readContract({
@@ -248,8 +271,8 @@ async function main() {
 }
 
 async function pollOnce(
-  publicClient: ReturnType<typeof createPublicClient>,
-  walletClient: ReturnType<typeof createWalletClient>,
+  publicClient: AppPublicClient,
+  walletClient: AppWalletClient,
   solver: Address
 ) {
   const res = await fetch(`${RELAYER_URL}/intents`);
@@ -268,8 +291,8 @@ async function pollOnce(
 }
 
 async function tryFill(
-  publicClient: ReturnType<typeof createPublicClient>,
-  walletClient: ReturnType<typeof createWalletClient>,
+  publicClient: AppPublicClient,
+  walletClient: AppWalletClient,
   solver: Address,
   stored: StoredIntent
 ) {
@@ -312,11 +335,15 @@ async function tryFill(
         args: [solver, amountOut],
         account: solver,
         chain: arbitrumSepolia,
+        ...(await bufferedFees(publicClient)),
       });
       await publicClient.waitForTransactionReceipt({ hash: mintHash });
       balance = await haveBalance();
-    } catch {
-      // Not a mintable test token — expected for any real asset.
+    } catch (err) {
+      // Could be "not a mintable test token" (expected for any real asset)
+      // or a real failure (bad gas estimate, RPC hiccup, etc.) — log it so
+      // a real failure doesn't masquerade as "insufficient inventory".
+      console.log(`${stored.intentHash}: mint() on ${intent.tokenOut} failed: ${(err as Error).message}`);
     }
   }
   if (balance < amountOut) {
@@ -355,6 +382,7 @@ async function tryFill(
           args: [CONTRACTS.settlementRouter, amountOut],
           account: solver,
           chain: arbitrumSepolia,
+          ...(await bufferedFees(publicClient)),
         }),
       });
     }
@@ -386,6 +414,7 @@ async function tryFill(
             args: [CONTRACTS.settlementRouter, FLAT_FEE],
             account: solver,
             chain: arbitrumSepolia,
+            ...(await bufferedFees(publicClient)),
           }),
         });
       }
@@ -410,6 +439,7 @@ async function tryFill(
       ],
       account: solver,
       chain: arbitrumSepolia,
+      ...(await bufferedFees(publicClient)),
     });
     const receipt = await publicClient.waitForTransactionReceipt({ hash: settleHash });
 

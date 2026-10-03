@@ -28,10 +28,25 @@ import {
   toHex,
   type Address,
   type Hex,
+  type PublicClient,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
 import { parseMetaAddress, computeStealthOutput } from "../../../packages/sdk/src/stealth.js";
+
+/**
+ * Arbitrum Sepolia's base fee moves every block (~0.25s) and the default
+ * maxFeePerGas estimate leaves no headroom above it, so a write submitted
+ * even a block late reverts with "max fee per gas less than block base
+ * fee". Pad the estimate by 50% so a write survives a few blocks of drift.
+ */
+async function bufferedFees(publicClient: PublicClient) {
+  const { maxFeePerGas, maxPriorityFeePerGas } = await publicClient.estimateFeesPerGas();
+  return {
+    maxFeePerGas: ((maxFeePerGas ?? 0n) * 150n) / 100n,
+    maxPriorityFeePerGas,
+  };
+}
 import { intentDomain, INTENT_TYPES, INTENT_PRIMARY_TYPE, type Intent } from "../../../packages/sdk/src/intent.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -198,6 +213,7 @@ async function main() {
       args: [name, symbol],
       account,
       chain: arbitrumSepolia,
+      ...(await bufferedFees(publicClient)),
     });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     if (!receipt.contractAddress) throw new Error(`${name} deployment produced no address`);
@@ -226,6 +242,7 @@ async function main() {
         args: [account.address, mintAmount],
         account,
         chain: arbitrumSepolia,
+        ...(await bufferedFees(publicClient)),
       }),
     });
     await publicClient.waitForTransactionReceipt({
@@ -236,6 +253,7 @@ async function main() {
         args: [CONTRACTS.settlementRouter, mintAmount],
         account,
         chain: arbitrumSepolia,
+        ...(await bufferedFees(publicClient)),
       }),
     });
   };
@@ -266,6 +284,7 @@ async function main() {
       args: [CONTRACTS.settlementRouter, feeAmount],
       account,
       chain: arbitrumSepolia,
+      ...(await bufferedFees(publicClient)),
     }),
   });
   console.log("Approved real USDG for the routing fee");
@@ -310,6 +329,7 @@ async function main() {
     ],
     account,
     chain: arbitrumSepolia,
+    ...(await bufferedFees(publicClient)),
   });
   const receipt = await publicClient.waitForTransactionReceipt({ hash: settleHash });
   console.log(`\nSettled (fee paid in real USDG). tx: https://sepolia.arbiscan.io/tx/${receipt.transactionHash}`);
