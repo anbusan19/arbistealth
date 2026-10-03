@@ -17,6 +17,7 @@ import {
   arbiscanAddressUrl,
   arbiscanTxUrl,
   bufferedFees,
+  erc20Abi,
   identityRegistryAbi,
   reputationRegistryAbi,
 } from "@/lib/contracts";
@@ -106,8 +107,13 @@ function AgentPanel({ address }: { address: Address }) {
   );
 }
 
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
+const MAX_UINT256 = (1n << 256n) - 1n;
+
 function SubmitIntentPanel({ address }: { address: Address }) {
   const { signTypedDataAsync } = useSignTypedData();
+  const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
   const queryClient = useQueryClient();
 
   const [tokenIn, setTokenIn] = useState("");
@@ -117,6 +123,47 @@ function SubmitIntentPanel({ address }: { address: Address }) {
   const [expiryMinutes, setExpiryMinutes] = useState("60");
   const [submittedHash, setSubmittedHash] = useState<string | null>(null);
 
+  const tokenInIsValid = ADDRESS_RE.test(tokenIn);
+  const amountInWei = (() => {
+    try {
+      return parseUnits(amountIn || "0", 18);
+    } catch {
+      return 0n;
+    }
+  })();
+
+  // A user must approve SettlementRouter to pull tokenIn before any solver
+  // can settle their intent — executeSettlement calls safeTransferFrom(user,
+  // ..., amountIn) under the hood. This is the same approve-then-trade
+  // pattern every ERC-20 DEX uses; nothing settles without it.
+  const allowance = useReadContract({
+    address: tokenIn as Address,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [address, CONTRACTS.settlementRouter],
+    query: { enabled: tokenInIsValid },
+  });
+
+  const needsApproval = tokenInIsValid && amountInWei > 0n && (allowance.data ?? 0n) < amountInWei;
+
+  const approve = useMutation({
+    mutationFn: async () => {
+      if (!publicClient) throw new Error("No RPC connection");
+      const hash = await writeContractAsync({
+        address: tokenIn as Address,
+        abi: erc20Abi,
+        functionName: "approve",
+        // Approve once, generously, rather than re-prompting for every trade
+        // of this token — the standard tradeoff every DEX UI makes between
+        // convenience and per-trade allowance scoping.
+        args: [CONTRACTS.settlementRouter, MAX_UINT256],
+        ...(await bufferedFees(publicClient)),
+      });
+      await publicClient.waitForTransactionReceipt({ hash });
+    },
+    onSuccess: () => allowance.refetch(),
+  });
+
   const { mutate, isPending, error } = useMutation({
     mutationFn: async () => {
       setSubmittedHash(null);
@@ -124,7 +171,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
         user: address,
         tokenIn: tokenIn as Address,
         tokenOut: tokenOut as Address,
-        amountIn: parseUnits(amountIn || "0", 18),
+        amountIn: amountInWei,
         minAmountOut: parseUnits(minAmountOut || "0", 18),
         nonce: randomNonce(),
         expiry: BigInt(Math.floor(Date.now() / 1000) + Number(expiryMinutes) * 60),
@@ -210,18 +257,37 @@ function SubmitIntentPanel({ address }: { address: Address }) {
           />
         </label>
 
-        <div className="flex items-end sm:col-span-2">
-          <button
-            type="submit"
-            disabled={isPending}
-            className="flex w-full items-center justify-center gap-3 border border-accent/50 bg-accent/10 py-3 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40 sm:w-auto sm:px-6"
-          >
-            {isPending ? <Loader size="sm" /> : null}
-            {isPending ? "SIGNING…" : "SIGN & SUBMIT INTENT"}
-          </button>
+        <div className="flex items-end gap-3 sm:col-span-2">
+          {needsApproval ? (
+            <button
+              type="button"
+              onClick={() => approve.mutate()}
+              disabled={approve.isPending}
+              className="flex w-full items-center justify-center gap-3 border border-amber-500/50 bg-amber-500/10 py-3 font-geist-mono text-xs tracking-wide text-amber-300 hover:bg-amber-500/20 disabled:opacity-40 sm:w-auto sm:px-6"
+            >
+              {approve.isPending ? <Loader size="sm" /> : null}
+              {approve.isPending ? "APPROVING…" : "APPROVE TOKEN IN"}
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={isPending || (tokenInIsValid && allowance.isLoading)}
+              className="flex w-full items-center justify-center gap-3 border border-accent/50 bg-accent/10 py-3 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40 sm:w-auto sm:px-6"
+            >
+              {isPending ? <Loader size="sm" /> : null}
+              {isPending ? "SIGNING…" : "SIGN & SUBMIT INTENT"}
+            </button>
+          )}
         </div>
+        {needsApproval && (
+          <p className="text-xs text-neutral-500 sm:col-span-2">
+            SettlementRouter isn&apos;t approved to spend this token yet — one-time on-chain approval, then
+            submitting intents is free.
+          </p>
+        )}
       </form>
 
+      {approve.error && <p className="mt-4 text-xs text-red-400">{approve.error.message}</p>}
       {error && <p className="mt-4 text-xs text-red-400">{error.message}</p>}
       {submittedHash && (
         <p className="mt-4 font-geist-mono text-xs text-accent">
