@@ -42,6 +42,7 @@ const deployment = JSON.parse(
 ) as {
   contracts: Record<string, Address>;
   externalRegistries: Record<string, Address>;
+  externalTokens: Record<string, Address>;
 };
 
 const demoTokenArtifact = JSON.parse(
@@ -54,6 +55,7 @@ const CONTRACTS = {
   identityRegistry: deployment.contracts.SimpleAgentIdentityRegistry,
 };
 const ERC6538_REGISTRY = deployment.externalRegistries.erc6538Registry;
+const USDG = deployment.externalTokens.usdg;
 
 const erc20Abi = [
   {
@@ -75,6 +77,13 @@ const erc20Abi = [
       { name: "amount", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
   },
 ] as const;
 
@@ -202,10 +211,12 @@ async function main() {
   const amountIn = parseUnits("100", 18);
   const minAmountOut = parseUnits("0.04", 18);
   const amountOut = parseUnits("0.05", 18);
-  const feeAmount = parseUnits("1", 18);
+  // USDG has 6 decimals (Paxos token, not our 18-decimal DemoTokens).
+  const feeAmount = parseUnits("1", 6);
 
-  // --- Mint + approve (testnet only — real tokenIn/tokenOut on mainnet
-  //     already exist with real balances; nothing here is minted there) ---
+  // --- Mint + approve the two demo tokens (testnet only — real tokenIn/
+  //     tokenOut on mainnet already exist with real balances; nothing here
+  //     is minted there) ---
   const mintAndApprove = async (token: Address, mintAmount: bigint) => {
     await publicClient.waitForTransactionReceipt({
       hash: await walletClient.writeContract({
@@ -229,9 +240,35 @@ async function main() {
     });
   };
 
-  await mintAndApprove(tokenIn, amountIn + feeAmount);
+  await mintAndApprove(tokenIn, amountIn);
   await mintAndApprove(tokenOut, amountOut);
   console.log("Minted + approved both demo tokens for SettlementRouter");
+
+  // --- Pay the routing fee in real USDG (not a demo token) — requires the
+  //     wallet to already hold some, e.g. from https://faucet.paxos.com ---
+  const usdgBalance = await publicClient.readContract({
+    address: USDG,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [account.address],
+  });
+  if (usdgBalance < feeAmount) {
+    throw new Error(
+      `${account.address} holds ${usdgBalance} USDG units but needs ${feeAmount} — ` +
+        `get test USDG from https://faucet.paxos.com (select Arbitrum Sepolia).`
+    );
+  }
+  await publicClient.waitForTransactionReceipt({
+    hash: await walletClient.writeContract({
+      address: USDG,
+      abi: erc20Abi,
+      functionName: "approve",
+      args: [CONTRACTS.settlementRouter, feeAmount],
+      account,
+      chain: arbitrumSepolia,
+    }),
+  });
+  console.log("Approved real USDG for the routing fee");
 
   // --- Sign the intent as the "user" ---
   const intent: Intent = {
@@ -267,7 +304,7 @@ async function main() {
         stealthAddress: stealthOutput.stealthAddress,
         ephemeralPubKey: stealthOutput.ephemeralPublicKey,
         viewTag: toHex(new Uint8Array([stealthOutput.viewTag])),
-        feeAsset: tokenIn,
+        feeAsset: USDG,
         feeAmount,
       },
     ],
@@ -275,7 +312,7 @@ async function main() {
     chain: arbitrumSepolia,
   });
   const receipt = await publicClient.waitForTransactionReceipt({ hash: settleHash });
-  console.log(`\nSettled. tx: https://sepolia.arbiscan.io/tx/${receipt.transactionHash}`);
+  console.log(`\nSettled (fee paid in real USDG). tx: https://sepolia.arbiscan.io/tx/${receipt.transactionHash}`);
   console.log("Reload /explorer — this should show a Settlement Executed and a Stealth Announcement.");
 }
 
