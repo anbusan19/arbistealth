@@ -101,4 +101,31 @@ describe("IntentPool", () => {
 
     expect(settled.status).toBe("settled");
   });
+
+  it("release reopens a claimed intent after a failed settlement attempt", async () => {
+    const pool = new IntentPool(domain);
+    const intent = buildIntent();
+    const signature = await signIntent(intent);
+    const stored = await pool.submit(intent, signature);
+    pool.claim(stored.intentHash, "0x0000000000000000000000000000000000000099");
+
+    const released = pool.release(stored.intentHash);
+
+    expect(released.status).toBe("open");
+    expect(released.claimedBy).toBeUndefined();
+    expect(pool.listOpen()).toHaveLength(1);
+  });
+
+  it("listByUser returns a user's intents across all statuses, newest first", async () => {
+    const pool = new IntentPool(domain);
+    const first = buildIntent({ nonce: 0n });
+    const second = buildIntent({ nonce: 1n });
+    const firstStored = await pool.submit(first, await signIntent(first));
+    const secondStored = await pool.submit(second, await signIntent(second));
+    pool.claim(firstStored.intentHash, "0x0000000000000000000000000000000000000099");
+
+    const byUser = pool.listByUser(account.address);
+
+    expect(byUser.map((s) => s.intentHash)).toEqual([secondStored.intentHash, firstStored.intentHash]);
+  });
 });

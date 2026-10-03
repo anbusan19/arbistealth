@@ -36,3 +36,7 @@ export const submitIntentSchema = z.object({
 export const claimSchema = z.object({
   agent: addressSchema,
 });
+
+export const settledSchema = z.object({
+  txHash: hexSchema.optional(),
+});

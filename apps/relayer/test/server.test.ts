@@ -125,4 +125,69 @@ describe("relayer HTTP API", () => {
     const listRes = await request(app).get("/intents");
     expect(listRes.body).toHaveLength(0);
   });
+
+  it("release reopens a claimed intent", async () => {
+    const app = createServer(config);
+    const intent = buildIntent();
+    const signature = await signIntent(intent);
+    const submitRes = await request(app)
+      .post("/intents")
+      .send({ intent: serializeForWire(intent), signature });
+    await request(app)
+      .post(`/intents/${submitRes.body.intentHash}/claim`)
+      .send({ agent: "0x0000000000000000000000000000000000000099" });
+
+    const releaseRes = await request(app).post(`/intents/${submitRes.body.intentHash}/release`).send({});
+
+    expect(releaseRes.status).toBe(200);
+    expect(releaseRes.body.status).toBe("open");
+
+    const listRes = await request(app).get("/intents");
+    expect(listRes.body).toHaveLength(1);
+  });
+
+  it("GET /intents?user= returns that user's intents across all statuses", async () => {
+    const app = createServer(config);
+    const intent = buildIntent();
+    const signature = await signIntent(intent);
+    const submitRes = await request(app)
+      .post("/intents")
+      .send({ intent: serializeForWire(intent), signature });
+    await request(app)
+      .post(`/intents/${submitRes.body.intentHash}/claim`)
+      .send({ agent: "0x0000000000000000000000000000000000000099" });
+
+    const res = await request(app).get(`/intents?user=${account.address}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].status).toBe("claimed");
+  });
+
+  it("GET /intents?user= rejects a malformed address", async () => {
+    const app = createServer(config);
+    const res = await request(app).get("/intents?user=not-an-address");
+    expect(res.status).toBe(400);
+  });
+
+  it("settled accepts and stores a settlement tx hash", async () => {
+    const app = createServer(config);
+    const intent = buildIntent();
+    const signature = await signIntent(intent);
+    const submitRes = await request(app)
+      .post("/intents")
+      .send({ intent: serializeForWire(intent), signature });
+    await request(app)
+      .post(`/intents/${submitRes.body.intentHash}/claim`)
+      .send({ agent: "0x0000000000000000000000000000000000000099" });
+
+    const txHash = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const settledRes = await request(app)
+      .post(`/intents/${submitRes.body.intentHash}/settled`)
+      .send({ txHash });
+
+    expect(settledRes.status).toBe(200);
+    expect(settledRes.body.status).toBe("settled");
+    expect(settledRes.body.settlementTxHash).toBe(txHash);
+  });
 });

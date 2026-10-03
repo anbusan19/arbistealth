@@ -11,6 +11,11 @@ export interface StoredIntent {
   status: IntentStatus;
   claimedBy?: Address;
   createdAt: number;
+  /** Monotonic insertion order, for deterministic "newest first" sorting even
+   *  when createdAt ties (Date.now() resolution can't be relied on). */
+  seq: number;
+  /** The on-chain executeSettlement tx hash, set once a solver reports success. */
+  settlementTxHash?: Hex;
 }
 
 export class IntentValidationError extends Error {}
@@ -27,6 +32,7 @@ export class IntentPool {
   private readonly domain: IntentDomain;
   private readonly intents = new Map<Hex, StoredIntent>();
   private readonly usedNonces = new Map<string, Set<bigint>>();
+  private seqCounter = 0;
 
   constructor(domain: IntentDomain) {
     this.domain = domain;
@@ -60,6 +66,7 @@ export class IntentPool {
       signature,
       status: "open",
       createdAt: Date.now(),
+      seq: this.seqCounter++,
     };
 
     this.intents.set(intentHash, stored);
@@ -80,6 +87,14 @@ export class IntentPool {
     );
   }
 
+  /** Lists a user's intents regardless of status, newest first — for "My Intents" UI. */
+  listByUser(user: Address): StoredIntent[] {
+    const userKey = user.toLowerCase();
+    return [...this.intents.values()]
+      .filter((stored) => stored.intent.user.toLowerCase() === userKey)
+      .sort((a, b) => b.seq - a.seq);
+  }
+
   get(intentHash: Hex): StoredIntent | undefined {
     return this.intents.get(intentHash);
   }
@@ -95,11 +110,23 @@ export class IntentPool {
     return stored;
   }
 
-  markSettled(intentHash: Hex): StoredIntent {
+  markSettled(intentHash: Hex, settlementTxHash?: Hex): StoredIntent {
     const stored = this.intents.get(intentHash);
     if (!stored) throw new IntentValidationError("unknown intent");
 
     stored.status = "settled";
+    stored.settlementTxHash = settlementTxHash;
+    return stored;
+  }
+
+  /** Reopens a claimed intent so other agents can retry it after a failed settlement attempt. */
+  release(intentHash: Hex): StoredIntent {
+    const stored = this.intents.get(intentHash);
+    if (!stored) throw new IntentValidationError("unknown intent");
+    if (stored.status !== "claimed") throw new IntentValidationError("intent not claimed");
+
+    stored.status = "open";
+    stored.claimedBy = undefined;
     return stored;
   }
 }
