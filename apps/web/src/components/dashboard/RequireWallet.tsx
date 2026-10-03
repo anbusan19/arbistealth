@@ -1,11 +1,33 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 import Link from "next/link";
 import { useAccount, useSwitchChain } from "wagmi";
 import type { Address } from "viem";
 import { Panel } from "@/components/ui/Panel";
+import { Loader } from "@/components/ui/Loader";
 import { CHAIN_ID } from "@/lib/contracts";
+
+function PendingGate() {
+  return (
+    <Panel className="mx-auto max-w-md p-8 text-center">
+      <Loader label="CONNECTING…" />
+    </Panel>
+  );
+}
+
+const subscribeNoop = () => () => {};
+
+/** True only after hydration — via useSyncExternalStore's dedicated client/server
+ *  snapshot split, not a setState-in-effect, so this itself never causes a
+ *  hydration mismatch (see RequireWallet's doc comment for why it's needed). */
+function useIsMounted(): boolean {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false
+  );
+}
 
 function ConnectGate() {
   return (
@@ -43,10 +65,18 @@ function NetworkGuard() {
 }
 
 /** Shared gate for every app page: connect-wallet prompt, then a network-mismatch
- *  prompt, before rendering the page's real content with a guaranteed address. */
+ *  prompt, before rendering the page's real content with a guaranteed address.
+ *
+ *  Renders a neutral PendingGate until mounted, since wagmi's injected connector
+ *  can auto-reconnect a wallet on the client before hydration finishes — without
+ *  this, useAccount() returns disconnected during SSR but connected on the
+ *  client's first paint, and React throws a hydration mismatch rebuilding the
+ *  whole subtree instead of just updating it. */
 export function RequireWallet({ children }: { children: (address: Address) => ReactNode }) {
+  const mounted = useIsMounted();
   const { address, isConnected, chainId } = useAccount();
 
+  if (!mounted) return <PendingGate />;
   if (!isConnected || !address) return <ConnectGate />;
   if (chainId !== CHAIN_ID) return <NetworkGuard />;
   return <>{children(address)}</>;
