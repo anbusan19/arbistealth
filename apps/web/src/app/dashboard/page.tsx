@@ -14,16 +14,14 @@ import { BlockNumberStat } from "@/components/BlockNumberStat";
 import { RequireWallet } from "@/components/dashboard/RequireWallet";
 import {
   CONTRACTS,
-  DEPLOY_BLOCK,
-  INTENT_SUBMITTED_EVENT,
   arbiscanAddressUrl,
   arbiscanTxUrl,
   bufferedFees,
   identityRegistryAbi,
-  intentRegistryAbi,
   reputationRegistryAbi,
 } from "@/lib/contracts";
 import { INTENT_DOMAIN, INTENT_PRIMARY_TYPE, INTENT_TYPES, randomNonce, type Intent } from "@/lib/intent";
+import { fetchMyRelayerIntents, submitIntentToRelayer } from "@/lib/relayer";
 
 function AgentPanel({ address }: { address: Address }) {
   const queryClient = useQueryClient();
@@ -110,20 +108,18 @@ function AgentPanel({ address }: { address: Address }) {
 
 function SubmitIntentPanel({ address }: { address: Address }) {
   const { signTypedDataAsync } = useSignTypedData();
-  const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
-  const publicClient = usePublicClient();
 
   const [tokenIn, setTokenIn] = useState("");
   const [tokenOut, setTokenOut] = useState("");
   const [amountIn, setAmountIn] = useState("");
   const [minAmountOut, setMinAmountOut] = useState("");
   const [expiryMinutes, setExpiryMinutes] = useState("60");
-  const [txHash, setTxHash] = useState<string | null>(null);
+  const [submittedHash, setSubmittedHash] = useState<string | null>(null);
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: async () => {
-      setTxHash(null);
+      setSubmittedHash(null);
       const intent: Intent = {
         user: address,
         tokenIn: tokenIn as Address,
@@ -141,16 +137,9 @@ function SubmitIntentPanel({ address }: { address: Address }) {
         message: intent,
       });
 
-      if (!publicClient) throw new Error("No RPC connection");
-      const hash = await writeContractAsync({
-        address: CONTRACTS.intentRegistry,
-        abi: intentRegistryAbi,
-        functionName: "submitIntent",
-        args: [intent, signature],
-        ...(await bufferedFees(publicClient)),
-      });
-      setTxHash(hash);
-      return hash;
+      const stored = await submitIntentToRelayer(intent, signature);
+      setSubmittedHash(stored.intentHash);
+      return stored;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-intents"] }),
   });
@@ -159,8 +148,8 @@ function SubmitIntentPanel({ address }: { address: Address }) {
     <Panel className="p-6 sm:p-8">
       <SectionLabel index="B">Submit A Trade Intent</SectionLabel>
       <p className="mt-4 text-sm text-neutral-400">
-        Signs an EIP-712 intent and submits it directly on-chain to IntentRegistry — no relayer required for this
-        demo.
+        Signs an EIP-712 intent and hands it to the relayer&apos;s off-chain pool — no gas, no on-chain tx yet. A
+        solver agent picks it up, settles it on-chain, and pays your output to a stealth address.
       </p>
 
       <form
@@ -228,43 +217,32 @@ function SubmitIntentPanel({ address }: { address: Address }) {
             className="flex w-full items-center justify-center gap-3 border border-accent/50 bg-accent/10 py-3 font-geist-mono text-xs tracking-wide text-accent-light hover:bg-accent/20 disabled:opacity-40 sm:w-auto sm:px-6"
           >
             {isPending ? <Loader size="sm" /> : null}
-            {isPending ? "SIGNING & SUBMITTING…" : "SIGN & SUBMIT INTENT"}
+            {isPending ? "SIGNING…" : "SIGN & SUBMIT INTENT"}
           </button>
         </div>
       </form>
 
       {error && <p className="mt-4 text-xs text-red-400">{error.message}</p>}
-      {txHash && (
-        <a
-          href={arbiscanTxUrl(txHash)}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-4 block font-geist-mono text-xs text-accent underline underline-offset-4"
-        >
-          View transaction on Arbiscan →
-        </a>
+      {submittedHash && (
+        <p className="mt-4 font-geist-mono text-xs text-accent">
+          Submitted {submittedHash.slice(0, 10)}…{submittedHash.slice(-6)} — waiting for a solver to settle it.
+        </p>
       )}
     </Panel>
   );
 }
 
-function MyIntentsPanel({ address }: { address: Address }) {
-  const publicClient = usePublicClient();
+const INTENT_STATUS_COLOR: Record<string, string> = {
+  open: "text-neutral-400",
+  claimed: "text-accent",
+  settled: "text-emerald-300",
+};
 
-  const { data, isLoading } = useQuery({
+function MyIntentsPanel({ address }: { address: Address }) {
+  const { data, isLoading, error } = useQuery({
     queryKey: ["my-intents", address],
-    queryFn: async () => {
-      if (!publicClient) return [];
-      const logs = await publicClient.getLogs({
-        address: CONTRACTS.intentRegistry,
-        event: INTENT_SUBMITTED_EVENT,
-        args: { user: address },
-        fromBlock: DEPLOY_BLOCK,
-        toBlock: "latest",
-      });
-      return logs.reverse();
-    },
-    enabled: !!publicClient,
+    queryFn: () => fetchMyRelayerIntents(address),
+    refetchInterval: 5_000,
   });
 
   return (
@@ -273,27 +251,41 @@ function MyIntentsPanel({ address }: { address: Address }) {
 
       {isLoading && (
         <div className="mt-6">
-          <Loader size="sm" label="READING INTENT HISTORY…" />
+          <Loader size="sm" label="READING INTENT POOL…" />
         </div>
       )}
-      {!isLoading && data?.length === 0 && (
+      {error && (
+        <p className="mt-6 text-xs text-red-400">
+          Couldn&apos;t reach the relayer — is it running? {(error as Error).message}
+        </p>
+      )}
+      {!isLoading && !error && data?.length === 0 && (
         <p className="mt-6 text-sm text-neutral-500">No intents submitted yet from this address.</p>
       )}
 
       <ul className="mt-6 flex max-h-64 flex-col divide-y divide-white/10 overflow-y-auto">
-        {data?.map((log) => (
-          <li key={log.transactionHash + log.logIndex} className="flex items-center justify-between gap-4 py-3">
-            <span className="font-geist-mono text-xs text-neutral-400">
-              {String(log.args.intentHash).slice(0, 10)}…{String(log.args.intentHash).slice(-6)}
-            </span>
-            <a
-              href={arbiscanTxUrl(log.transactionHash)}
-              target="_blank"
-              rel="noreferrer"
-              className="font-geist-mono text-xs text-accent hover:underline"
-            >
-              VIEW TX →
-            </a>
+        {data?.map((stored) => (
+          <li key={stored.intentHash} className="flex items-center justify-between gap-4 py-3">
+            <div className="flex items-center gap-3">
+              <span className={`font-geist-mono text-[10px] tracking-wide uppercase ${INTENT_STATUS_COLOR[stored.status]}`}>
+                {stored.status}
+              </span>
+              <span className="font-geist-mono text-xs text-neutral-400">
+                {stored.intentHash.slice(0, 10)}…{stored.intentHash.slice(-6)}
+              </span>
+            </div>
+            {stored.settlementTxHash ? (
+              <a
+                href={arbiscanTxUrl(stored.settlementTxHash)}
+                target="_blank"
+                rel="noreferrer"
+                className="font-geist-mono text-xs text-accent hover:underline"
+              >
+                VIEW TX →
+              </a>
+            ) : (
+              <span className="font-geist-mono text-xs text-neutral-600">no tx yet</span>
+            )}
           </li>
         ))}
       </ul>
