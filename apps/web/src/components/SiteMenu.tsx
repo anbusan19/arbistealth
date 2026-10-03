@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { LineSidebar } from "./ui/LineSidebar";
+import { ConnectButton } from "./ConnectButton";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -51,18 +52,21 @@ export function SiteMenu() {
       </button>
 
       {open && (
-        <LineSidebar
-          items={LINKS.map((l) => l.label)}
-          align="right"
-          accentColor="#6e87ed"
-          textColor="#94a3b8"
-          markerColor="#334155"
-          defaultActive={activeIndex >= 0 ? activeIndex : null}
-          markerLength={40}
-          itemGap={16}
-          fontSize={0.95}
-          onItemClick={(index) => router.push(LINKS[index].href)}
-        />
+        <>
+          <LineSidebar
+            items={LINKS.map((l) => l.label)}
+            align="right"
+            accentColor="#6e87ed"
+            textColor="#94a3b8"
+            markerColor="#334155"
+            defaultActive={activeIndex >= 0 ? activeIndex : null}
+            markerLength={40}
+            itemGap={16}
+            fontSize={0.95}
+            onItemClick={(index) => router.push(LINKS[index].href)}
+          />
+          <ConnectButton />
+        </>
       )}
     </div>
   );
