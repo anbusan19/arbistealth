@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useReadContract, useWriteContract } from "wagmi";
+import { usePublicClient, useReadContract, useWriteContract } from "wagmi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Address } from "viem";
 import { AppLayout } from "@/layouts/AppLayout";
@@ -10,13 +10,22 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/ui/Reveal";
 import { Loader } from "@/components/ui/Loader";
 import { RequireWallet } from "@/components/dashboard/RequireWallet";
-import { CHAIN_ID, CONTRACTS, EXTERNAL, arbiscanTxUrl, erc6538RegistryAbi, feeVaultAbi } from "@/lib/contracts";
+import {
+  CHAIN_ID,
+  CONTRACTS,
+  EXTERNAL,
+  arbiscanTxUrl,
+  bufferedFees,
+  erc6538RegistryAbi,
+  feeVaultAbi,
+} from "@/lib/contracts";
 import { generateStealthKeys, loadStoredStealthKeys, saveStealthKeys, type StealthKeys } from "@/lib/stealth";
 
 function StealthKeysPanel({ address }: { address: Address }) {
   const [keys, setKeys] = useState<StealthKeys | null>(() => loadStoredStealthKeys());
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
+  const publicClient = usePublicClient();
   const [txHash, setTxHash] = useState<string | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
 
@@ -38,12 +47,14 @@ function StealthKeysPanel({ address }: { address: Address }) {
   const register = useMutation({
     mutationFn: async () => {
       if (!keys) throw new Error("Generate keys first");
+      if (!publicClient) throw new Error("No RPC connection");
       setTxHash(null);
       const hash = await writeContractAsync({
         address: EXTERNAL.erc6538Registry,
         abi: erc6538RegistryAbi,
         functionName: "registerKeys",
         args: [1n, keys.metaAddress],
+        ...(await bufferedFees(publicClient)),
       });
       setTxHash(hash);
       return hash;

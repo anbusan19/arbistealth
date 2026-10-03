@@ -18,6 +18,7 @@ import {
   INTENT_SUBMITTED_EVENT,
   arbiscanAddressUrl,
   arbiscanTxUrl,
+  bufferedFees,
   identityRegistryAbi,
   intentRegistryAbi,
   reputationRegistryAbi,
@@ -26,6 +27,7 @@ import { INTENT_DOMAIN, INTENT_PRIMARY_TYPE, INTENT_TYPES, randomNonce, type Int
 
 function AgentPanel({ address }: { address: Address }) {
   const queryClient = useQueryClient();
+  const publicClient = usePublicClient();
 
   const agentId = useReadContract({
     address: CONTRACTS.identityRegistry,
@@ -47,13 +49,16 @@ function AgentPanel({ address }: { address: Address }) {
   const { writeContractAsync, isPending } = useWriteContract();
 
   const register = useMutation({
-    mutationFn: () =>
-      writeContractAsync({
+    mutationFn: async () => {
+      if (!publicClient) throw new Error("No RPC connection");
+      return writeContractAsync({
         address: CONTRACTS.identityRegistry,
         abi: identityRegistryAbi,
         functionName: "registerAgent",
         args: ["ipfs://arbistealth-agent-card"],
-      }),
+        ...(await bufferedFees(publicClient)),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries();
       agentId.refetch();
@@ -107,6 +112,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
   const { signTypedDataAsync } = useSignTypedData();
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
+  const publicClient = usePublicClient();
 
   const [tokenIn, setTokenIn] = useState("");
   const [tokenOut, setTokenOut] = useState("");
@@ -135,11 +141,13 @@ function SubmitIntentPanel({ address }: { address: Address }) {
         message: intent,
       });
 
+      if (!publicClient) throw new Error("No RPC connection");
       const hash = await writeContractAsync({
         address: CONTRACTS.intentRegistry,
         abi: intentRegistryAbi,
         functionName: "submitIntent",
         args: [intent, signature],
+        ...(await bufferedFees(publicClient)),
       });
       setTxHash(hash);
       return hash;

@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import type { Address, PublicClient } from "viem";
 
 /** Live Arbitrum Sepolia deployment — see deployments/arbitrum-sepolia.json in the main repo. */
 export const CHAIN_ID = 421614;
@@ -169,6 +169,22 @@ export const feeVaultAbi = [
     outputs: [{ name: "", type: "address" }],
   },
 ] as const;
+
+/**
+ * Arbitrum Sepolia's base fee moves every block (~0.25s) and wagmi's default
+ * maxFeePerGas estimate leaves no headroom above it, so a write submitted even
+ * a block late reverts with "max fee per gas less than block base fee" —
+ * seen repeatedly in practice, not a one-off. Pad the estimate by 50% so a
+ * write survives a few blocks of base-fee drift between estimation and
+ * broadcast.
+ */
+export async function bufferedFees(publicClient: PublicClient) {
+  const { maxFeePerGas, maxPriorityFeePerGas } = await publicClient.estimateFeesPerGas();
+  return {
+    maxFeePerGas: ((maxFeePerGas ?? 0n) * 150n) / 100n,
+    maxPriorityFeePerGas,
+  };
+}
 
 export function arbiscanTxUrl(hash: string) {
   return `https://sepolia.arbiscan.io/tx/${hash}`;
