@@ -147,6 +147,19 @@ function SubmitIntentPanel({ address }: { address: Address }) {
     query: { enabled: tokenInIsValid },
   });
 
+  const tokenOutIsValid = ADDRESS_RE.test(tokenOut);
+
+  // tokenOut's own decimals too — minAmountOut must match what tokenOut
+  // actually uses (e.g. USDG is 6, not 18), or a solver can never hold
+  // enough to clear the fill and the intent just sits open forever.
+  const tokenOutDecimals = useReadContract({
+    address: tokenOut as Address,
+    abi: erc20Abi,
+    functionName: "decimals",
+    query: { enabled: tokenOutIsValid },
+  });
+  const outDecimals = tokenOutDecimals.data ?? 18;
+
   const balance = useReadContract({
     address: tokenIn as Address,
     abi: erc20Abi,
@@ -203,7 +216,7 @@ function SubmitIntentPanel({ address }: { address: Address }) {
         tokenIn: tokenIn as Address,
         tokenOut: tokenOut as Address,
         amountIn: amountInWei,
-        minAmountOut: parseUnits(minAmountOut || "0", 18),
+        minAmountOut: parseUnits(minAmountOut || "0", outDecimals),
         nonce: randomNonce(),
         expiry: BigInt(Math.floor(Date.now() / 1000) + Number(expiryMinutes) * 60),
       };
