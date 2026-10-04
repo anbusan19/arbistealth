@@ -16,7 +16,7 @@ function Tag({ children }: { children: ReactNode }) {
 
 function PrivacyMock() {
   return (
-    <Panel className="w-full max-w-sm p-6" dither>
+    <Panel className="w-full max-w-sm p-6">
       <div className="font-geist-mono text-[10px] tracking-wide text-accent/80 uppercase">
         Stealth Meta-Address
       </div>
@@ -42,7 +42,7 @@ function PrivacyMock() {
 
 function AgentMock() {
   return (
-    <Panel className="w-full max-w-sm p-6" dither>
+    <Panel className="w-full max-w-sm p-6">
       <div className="flex items-center gap-2 font-geist-mono text-[10px] tracking-wide text-emerald-300 uppercase">
         <span>✓</span>
         ERC-8004 Registered Agent
@@ -58,7 +58,7 @@ function AgentMock() {
 
 function SettlementMock() {
   return (
-    <Panel className="w-full max-w-sm p-6" dither>
+    <Panel className="w-full max-w-sm p-6">
       <div className="font-geist-mono text-[10px] tracking-wide text-accent/80 uppercase">
         Submit A Trade Intent
       </div>
@@ -109,16 +109,32 @@ const PILLARS = [
 ];
 
 function StagePanel({ pillar }: { pillar: (typeof PILLARS)[number] }) {
+  const path = `~/arbistealth/${pillar.tag.toLowerCase().replace(/\s+/g, "-")}.sh`;
+
   return (
-    <div className="relative flex min-h-[320px] items-center justify-center overflow-hidden border border-white/10 bg-gradient-to-br from-accent/[0.08] via-transparent to-accent/[0.03] p-10">
-      <div
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage: "radial-gradient(circle, #6e87ed 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
-      <div className="relative">{pillar.mock}</div>
+    <div className="overflow-hidden border border-white/10 bg-[#07080a]">
+      <div className="flex items-center gap-4 border-b border-white/10 bg-white/[0.02] px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full border border-white/20" />
+          <span className="h-2.5 w-2.5 rounded-full border border-white/20" />
+          <span className="h-2.5 w-2.5 rounded-full bg-accent/60" />
+        </div>
+        <span className="font-geist-mono text-[11px] text-neutral-500">
+          {path}
+          <span className="ml-0.5 inline-block w-[7px] animate-pulse bg-accent/70 align-middle text-transparent">
+            |
+          </span>
+        </span>
+      </div>
+      <div className="relative flex min-h-[320px] items-center justify-center overflow-hidden p-10">
+        <div
+          className="absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage: "repeating-linear-gradient(0deg, #fff 0px, #fff 1px, transparent 1px, transparent 3px)",
+          }}
+        />
+        <div className="relative">{pillar.mock}</div>
+      </div>
     </div>
   );
 }
