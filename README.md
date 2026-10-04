@@ -117,6 +117,10 @@ flowchart TB
     SC -.-> RH
 ```
 
+The same flow, as the live settlement-contract trace rendered in the app's "How It Works" section:
+
+![ArbiStealth settlement flow: User signs an intent, IntentRegistry verifies and submits it, SettlementRouter executes against FeeVault and the Agent's ERC-8004 identity, and output lands at a stealth address while a reputation entry is recorded](docs/images/architecture-diagram.png)
+
 ### Flow summary
 
 1. User generates a stealth meta-address and registers it once via the meta-address registry.
