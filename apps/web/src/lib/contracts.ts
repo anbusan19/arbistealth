@@ -16,6 +16,18 @@ export const CONTRACTS = {
   settlementRouter: "0x6b7866727B3D10598aEC1334f939Ce942f9907c9" as Address,
 } as const;
 
+export const CONTRACT_LABELS: Record<keyof typeof CONTRACTS, string> = {
+  intentRegistry: "IntentRegistry",
+  stealthAnnouncer: "StealthAnnouncerAdapter",
+  stealthMetaRegistry: "StealthMetaRegistryAdapter",
+  identityRegistry: "SimpleAgentIdentityRegistry",
+  reputationRegistry: "SimpleAgentReputationRegistry",
+  validationRegistry: "SimpleAgentValidationRegistry",
+  agentIdentity: "AgentIdentityAdapter",
+  feeVault: "FeeVault",
+  settlementRouter: "SettlementRouter",
+};
+
 export const EXTERNAL = {
   erc5564Announcer: "0x55649E01B5Df198D18D95b5cc5051630cfD45564" as Address,
   erc6538Registry: "0x6538E6bf4B0eBd30A8Ea093027Ac2422ce5d6538" as Address,

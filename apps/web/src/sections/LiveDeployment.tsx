@@ -5,19 +5,7 @@ import { Check, Copy, ExternalLink } from "lucide-react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
 import CountUp from "../components/ui/CountUp";
-import { CONTRACTS, arbiscanAddressUrl } from "../lib/contracts";
-
-const LABELS: Record<keyof typeof CONTRACTS, string> = {
-  intentRegistry: "IntentRegistry",
-  stealthAnnouncer: "StealthAnnouncerAdapter",
-  stealthMetaRegistry: "StealthMetaRegistryAdapter",
-  identityRegistry: "SimpleAgentIdentityRegistry",
-  reputationRegistry: "SimpleAgentReputationRegistry",
-  validationRegistry: "SimpleAgentValidationRegistry",
-  agentIdentity: "AgentIdentityAdapter",
-  feeVault: "FeeVault",
-  settlementRouter: "SettlementRouter",
-};
+import { CONTRACTS, CONTRACT_LABELS, arbiscanAddressUrl } from "../lib/contracts";
 
 const KEYS = Object.keys(CONTRACTS) as (keyof typeof CONTRACTS)[];
 
@@ -83,7 +71,7 @@ export function LiveDeployment() {
                 rel="noreferrer"
                 className="group flex flex-col justify-between gap-2 px-6 py-4 transition-colors hover:bg-white/[0.04] sm:flex-row sm:items-center sm:px-8"
               >
-                <span className="text-sm text-white">{LABELS[key]}</span>
+                <span className="text-sm text-white">{CONTRACT_LABELS[key]}</span>
                 <div className="flex items-center gap-2">
                   <span className="font-geist-mono text-xs text-neutral-500 group-hover:text-accent">
                     {CONTRACTS[key]}
