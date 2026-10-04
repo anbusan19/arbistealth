@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, GitFork } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Reveal } from "../components/ui/Reveal";
 
 const COLUMNS: { heading: string; links: { label: string; href: string; external?: boolean }[] }[] = [
@@ -115,40 +115,25 @@ export function CTAFooter() {
       {/* Social row */}
       <div className="border-t border-white/10 px-6 py-6 sm:px-10 lg:px-16">
         <div className="mx-auto flex max-w-[1600px] items-center gap-4">
-          <a
-            href="https://github.com/anbusan19/arbistealth"
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-9 w-9 items-center justify-center border border-white/10 text-neutral-400 hover:border-white/30 hover:text-white"
-            aria-label="GitHub"
-          >
-            <GitFork size={16} />
-          </a>
         </div>
       </div>
 
       {/* Big watermark — same word as the hero wordmark, bled past all four edges */}
-      <div className="h-[16vw] overflow-hidden text-center select-none sm:h-[13vw]">
+      <div className="h-[18vw] overflow-hidden text-center select-none sm:h-[18vw]">
         <span className="block leading-none font-bold tracking-tighter text-white/[0.05] text-[20vw] whitespace-nowrap">
           ArbiStealth
         </span>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-white/10 px-6 py-6 sm:px-10 lg:px-16">
-        <div className="mx-auto flex max-w-[1600px] flex-col items-start justify-between gap-4 text-xs text-neutral-500 sm:flex-row sm:items-center">
-          <span className="font-geist-mono">
-            ARBISTEALTH © 2026 — ARBITRUM OPEN HOUSE SINGAPORE BUILDATHON
-          </span>
-          <span className="flex items-center gap-2 border border-emerald-400/30 bg-emerald-400/10 px-3 py-1.5 font-geist-mono text-[10px] tracking-wide text-emerald-300">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            </span>
-            ARBITRUM SEPOLIA · TESTNET
-          </span>
-        </div>
+      {/* Closing color bar — four tonal steps of our own accent blue, not a new palette */}
+      <div className="flex w-full flex-col">
+        <div className="h-9 bg-[#8ea3f6] sm:h-11" />
+        <div className="h-9 bg-[#6e87ed] sm:h-11" />
+        <div className="h-9 bg-[#4a5fc4] sm:h-11" />
+        <div className="h-9 bg-[#2a3570] sm:h-11" />
       </div>
+
+      {/* Bottom bar */}
     </footer>
   );
 }
