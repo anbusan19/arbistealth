@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import Dither from "@/components/ui/Dither";
 import TechText from "@/components/TechText";
-import DecryptedText from "@/components/DecryptedText";
 import { joinMainnetWaitlist } from "@/lib/relayer";
 
 function MainnetWaitlist() {
@@ -78,7 +77,7 @@ export function Hero() {
           colorNum={4}
           waveAmplitude={0.3}
           waveFrequency={3}
-          waveSpeed={0.2}
+          waveSpeed={0.05}
         />
       </div>
 
@@ -92,6 +91,7 @@ export function Hero() {
             color="#ffffff"
             accentColor="#ffffff"
             reveal="letter"
+            align="left"
             dashLength={4}
             dashGap={2}
             specks={15}
@@ -104,17 +104,8 @@ export function Hero() {
           />
         </div>
 
-        <div className="mt-1 max-w-xl cursor-pointer text-left font-geist-mono text-xs tracking-wide text-white sm:text-sm">
-          <DecryptedText
-            text="A PRIVACY-PRESERVING, AGENT-DRIVEN INTENT SETTLEMENT PROTOCOL ON ARBITRUM"
-            speed={35}
-            maxIterations={12}
-            sequential={true}
-            revealDirection="start"
-            animateOn="inViewHover"
-            className="text-white"
-            encryptedClassName="text-accent font-mono font-medium"
-          />
+        <div className="mt-1 max-w-xl text-left font-geist-mono text-xs tracking-wide text-white sm:text-sm">
+          A PRIVACY-PRESERVING, AGENT-DRIVEN INTENT SETTLEMENT PROTOCOL ON ARBITRUM
         </div>
 
         <div className="mt-6 flex items-center gap-3">

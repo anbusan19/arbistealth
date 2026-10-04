@@ -51,6 +51,10 @@ export interface TechTextProps {
   strokeWidth?: number;
   lineStyle?: 'dashed' | 'solid';
   reveal?: 'area' | 'letter' | 'off';
+  /** Horizontal placement of the text within the canvas. Defaults to 'center'
+   *  (the original behavior); use 'left' to flush it against the canvas's
+   *  left edge, e.g. to align with left-aligned content below it. */
+  align?: 'left' | 'center';
   specks?: number;
   selection?: boolean;
   labels?: boolean;
@@ -103,6 +107,7 @@ export const TechText = ({
   strokeWidth = 1.5,
   lineStyle = 'dashed',
   reveal = 'letter',
+  align = 'center',
   specks = 15,
   selection = true,
   labels = true,
@@ -133,6 +138,7 @@ export const TechText = ({
       strokeWidth,
       lineStyle,
       reveal,
+      align,
       specks,
       selection,
       labels,
@@ -245,6 +251,7 @@ export const TechText = ({
         s.dashGap,
         s.strokeWidth,
         s.lineStyle,
+        s.align,
         width,
         height,
         dpr
@@ -270,7 +277,8 @@ export const TechText = ({
       m = probe.measureText(s.text);
       const inkWidth = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
       const inkHeight = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
-      const x = (width - inkWidth) / 2 + m.actualBoundingBoxLeft;
+      const x =
+        s.align === 'left' ? m.actualBoundingBoxLeft : (width - inkWidth) / 2 + m.actualBoundingBoxLeft;
       const baseline = (height - inkHeight) / 2 + m.actualBoundingBoxAscent;
       const next: WordLayout = {
         size,
