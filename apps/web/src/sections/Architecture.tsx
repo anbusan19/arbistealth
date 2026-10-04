@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
+import { ArchitectureDiagram } from "../components/ArchitectureDiagram";
 
 const STEPS = [
   "User generates a stealth meta-address and registers it once via the meta-address registry.",
@@ -26,6 +27,8 @@ export function Architecture() {
             From signed intent to private settlement.
           </h2>
         </Reveal>
+
+        <ArchitectureDiagram />
 
         <div className="relative mt-16">
           <motion.div
