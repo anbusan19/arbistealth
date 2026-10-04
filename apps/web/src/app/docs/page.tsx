@@ -44,7 +44,12 @@ export function H3({ children }: { children: React.ReactNode }) {
 export default function DocsPage() {
   return (
     <AppLayout>
-      <div className="mx-auto max-w-[1400px]">
+      {/* Docs is mostly plain paragraph text directly over the animated
+       *  PixelBlast background (unlike dashboard/explorer, which keep text
+       *  inside opaque Panel cards), so it needs its own dimming scrim to
+       *  stay legible. */}
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-[#040508]/75" aria-hidden="true" />
+      <div className="relative z-[2] mx-auto max-w-[1400px]">
         <Reveal>
           <SectionLabel index="DOCS">ArbiStealth Protocol Documentation</SectionLabel>
           <h1 className="mt-6 max-w-2xl text-3xl font-medium tracking-tight text-white sm:text-4xl">

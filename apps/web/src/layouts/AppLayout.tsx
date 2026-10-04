@@ -6,7 +6,11 @@ import PixelBlast from "@/components/ui/PixelBlast";
  *  (via providers.tsx) — not per-page here. */
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#040508] text-white">
+    // No overflow-hidden here: the PixelBlast background is `fixed`, so it
+    // doesn't need a clipping ancestor, and `overflow` on this wrapper would
+    // break `position: sticky` for any descendant (its nearest scrolling
+    // ancestor would no longer be the viewport).
+    <div className="relative min-h-screen w-full bg-[#040508] text-white">
       <div className="pointer-events-none fixed inset-0 z-0 opacity-50">
         <PixelBlast
           variant="square"
