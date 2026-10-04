@@ -127,10 +127,10 @@ export function CTAFooter() {
         </div>
       </div>
 
-      {/* Big watermark */}
-      <div className="overflow-hidden px-6 py-12 text-center select-none sm:px-10 lg:px-16">
-        <span className="font-geist-mono text-[14vw] leading-none font-medium tracking-tighter text-white/[0.04] sm:text-[10vw]">
-          ARBISTEALTH
+      {/* Big watermark — same word as the hero wordmark, bled edge to edge */}
+      <div className="overflow-hidden py-12 text-center select-none">
+        <span className="block leading-none font-bold tracking-tighter text-white/[0.05] text-[20vw] whitespace-nowrap">
+          ArbiStealth
         </span>
       </div>
 
@@ -149,9 +149,6 @@ export function CTAFooter() {
           </span>
         </div>
       </div>
-
-      {/* Closing flourish */}
-      <div className="h-[3px] w-full bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
     </footer>
   );
 }
