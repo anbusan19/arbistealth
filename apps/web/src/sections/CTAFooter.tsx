@@ -127,8 +127,8 @@ export function CTAFooter() {
         </div>
       </div>
 
-      {/* Big watermark — same word as the hero wordmark, bled edge to edge */}
-      <div className="overflow-hidden py-12 text-center select-none">
+      {/* Big watermark — same word as the hero wordmark, bled past all four edges */}
+      <div className="h-[9vw] overflow-hidden pt-10 text-center select-none sm:h-[7vw]">
         <span className="block leading-none font-bold tracking-tighter text-white/[0.05] text-[20vw] whitespace-nowrap">
           ArbiStealth
         </span>
