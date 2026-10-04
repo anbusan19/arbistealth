@@ -9,7 +9,6 @@ const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/explorer", label: "Explorer" },
   { href: "/settings", label: "Settings" },
-  { href: "/pitch", label: "Pitch" },
 ];
 
 /** Replaces the old hamburger + right-side dropdown: a single floating bar,
@@ -35,6 +34,14 @@ export function FloatingHeader() {
             </Link>
           );
         })}
+        <a
+          href="/pitch.html"
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-full px-3 py-1.5 font-geist-mono text-xs tracking-wide text-neutral-400 hover:text-white"
+        >
+          Pitch
+        </a>
         <span className="h-4 w-px bg-white/10" aria-hidden="true" />
         <ConnectButton className="mx-1 rounded-full" />
       </nav>

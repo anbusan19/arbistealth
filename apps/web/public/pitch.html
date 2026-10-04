@@ -1,0 +1,934 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ArbiStealth Pitch</title>
+<style>
+/* layout concept: one full-viewport slide at a time, stacked in a horizontal
+   track and translated by index; dark-first single visual world (brand is
+   black/cream/violet, no light variant needed) */
+:root{
+  --bg:#040508;
+  --fg:#f8fafc;
+  --muted:#a3a3a3;
+  --accent:#6fa6d2;
+  --surface:#0b0e14;
+  --line:rgba(255,255,255,0.1);
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+.mono{
+  font-family:"Geist Mono","JetBrains Mono",ui-monospace,monospace;
+}
+
+/* ---------- deck frame ---------- */
+#deck{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+#track{
+  position:relative;
+  z-index:1;
+  display:flex;
+  height:100%;
+  width:1000%;
+  transition:transform 520ms cubic-bezier(.22,.8,.2,1);
+  will-change:transform;
+}
+
+.slide{
+  flex:0 0 10%;
+  height:100%;
+  width:10%;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(28px,6vw,96px);
+  padding-block:clamp(28px,6vw,96px);
+}
+
+.slide-inner{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:980px;
+}
+
+.canvas-bg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+}
+.canvas-bg canvas{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+/* ---------- typography ---------- */
+.kicker{
+  font-family:"Geist Mono","JetBrains Mono",ui-monospace,monospace;
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.kicker::before{
+  content:"";
+  width:6px;
+  height:6px;
+  background:var(--accent);
+  border-radius:1px;
+  flex:none;
+}
+
+h1{
+  font-size:clamp(40px,7vw,86px);
+  line-height:1.02;
+  letter-spacing:-0.02em;
+  font-weight:700;
+  margin:0 0 20px;
+  text-wrap:balance;
+}
+h2{
+  font-size:clamp(30px,4.6vw,54px);
+  line-height:1.05;
+  letter-spacing:-0.015em;
+  font-weight:700;
+  margin:0 0 28px;
+  text-wrap:balance;
+}
+.tagline{
+  font-size:clamp(16px,2vw,22px);
+  color:var(--muted);
+  max-width:60ch;
+  margin:0;
+  line-height:1.5;
+}
+.lede{
+  font-size:clamp(16px,2vw,21px);
+  color:var(--fg);
+  max-width:62ch;
+  line-height:1.55;
+  margin:0 0 8px;
+}
+
+/* ---------- content blocks ---------- */
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px 40px;
+}
+@media (max-width:760px){ .grid2{grid-template-columns:1fr;} }
+
+.point{
+  padding:22px 0;
+  border-top:1px solid var(--line);
+}
+.point:first-child{border-top:none; padding-top:0;}
+.point h3{
+  font-size:18px;
+  margin:0 0 8px;
+  font-weight:600;
+}
+.point p{
+  margin:0;
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.55;
+}
+
+.pillars{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  margin-top:6px;
+}
+@media (max-width:760px){ .pillars{grid-template-columns:1fr;} }
+.pillar{
+  background:var(--surface);
+  padding:28px 24px;
+}
+.pillar .tag{
+  font-family:"Geist Mono",monospace;
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 14px;
+}
+.pillar h3{
+  font-size:19px;
+  margin:0 0 10px;
+  font-weight:600;
+}
+.pillar p{
+  margin:0;
+  color:var(--muted);
+  font-size:14.5px;
+  line-height:1.55;
+}
+
+.flow{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  margin-top:8px;
+  counter-reset:step;
+}
+.flow-step{
+  display:grid;
+  grid-template-columns:52px 1fr;
+  gap:18px;
+  padding:16px 0;
+  border-top:1px solid var(--line);
+  align-items:start;
+}
+.flow-step:first-child{border-top:none;padding-top:0;}
+.flow-step .num{
+  font-family:"Geist Mono",monospace;
+  font-size:13px;
+  color:var(--accent);
+  padding-top:2px;
+}
+.flow-step h3{
+  margin:0 0 4px;
+  font-size:16.5px;
+  font-weight:600;
+}
+.flow-step p{
+  margin:0;
+  color:var(--muted);
+  font-size:14.5px;
+  line-height:1.5;
+}
+
+.status-table{
+  margin-top:10px;
+  border:1px solid var(--line);
+}
+.status-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 200px;
+  gap:16px;
+  padding:16px 20px;
+  border-bottom:1px solid var(--line);
+  align-items:center;
+}
+.status-row:last-child{border-bottom:none;}
+.status-row .label{font-size:15px;font-weight:600;}
+.status-row .fill{
+  font-family:"Geist Mono",monospace;
+  font-size:13px;
+  color:var(--accent);
+  background:rgba(111,166,210,.08);
+  border:1px dashed rgba(111,166,210,.4);
+  padding:6px 10px;
+  border-radius:3px;
+}
+.badge{
+  font-family:"Geist Mono",monospace;
+  font-size:11px;
+  letter-spacing:.06em;
+  padding:5px 10px;
+  border-radius:3px;
+  width:fit-content;
+  justify-self:end;
+}
+.badge.live{background:rgba(111,166,210,.14); color:var(--accent); border:1px solid rgba(111,166,210,.4);}
+@media (max-width:760px){ .status-row{grid-template-columns:1fr;} .badge{justify-self:start;} }
+
+.stack-list{
+  columns:2;
+  column-gap:40px;
+  margin-top:8px;
+}
+@media (max-width:760px){ .stack-list{columns:1;} }
+.stack-item{
+  break-inside:avoid;
+  padding:14px 0;
+  border-top:1px solid var(--line);
+}
+.stack-item:nth-child(1), .stack-item:nth-child(2){border-top:none;}
+.stack-item .role{
+  font-family:"Geist Mono",monospace;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 4px;
+}
+.stack-item .val{font-size:15.5px;}
+
+.compare{
+  margin-top:10px;
+  border:1px solid var(--line);
+}
+.compare-row{
+  display:grid;
+  grid-template-columns:140px 1fr;
+  gap:20px;
+  padding:16px 20px;
+  border-bottom:1px solid var(--line);
+}
+.compare-row:last-child{border-bottom:none;}
+.compare-row .who{
+  font-weight:600;
+  font-size:15px;
+}
+.compare-row.us .who{color:var(--accent);}
+.compare-row p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.5;}
+.compare-row.us p{color:var(--fg);}
+
+.roadmap{
+  display:flex;
+  gap:0;
+  margin-top:10px;
+}
+@media (max-width:760px){ .roadmap{flex-direction:column;} }
+.phase{
+  flex:1;
+  padding:20px 22px;
+  border:1px solid var(--line);
+  border-left:none;
+}
+.phase:first-child{border-left:1px solid var(--line);}
+@media (max-width:760px){ .phase{border-left:1px solid var(--line); border-top:none;} .phase:first-child{border-top:1px solid var(--line);} }
+.phase .tag{
+  font-family:"Geist Mono",monospace;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 10px;
+}
+.phase h3{font-size:16.5px;margin:0 0 8px;font-weight:600;}
+.phase p{margin:0;color:var(--muted);font-size:14px;line-height:1.5;}
+
+.ask-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:28px;
+  margin-top:30px;
+}
+@media (max-width:760px){ .ask-grid{grid-template-columns:1fr;} }
+.ask-item .role{
+  font-family:"Geist Mono",monospace;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 8px;
+}
+.ask-item .val{font-size:17px;}
+.ask-item .val a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(111,166,210,.4);}
+
+/* ---------- chrome: progress + nav + counter ---------- */
+#progress{
+  position:fixed;
+  top:0; left:0;
+  height:2px;
+  background:var(--accent);
+  z-index:20;
+  transition:width 420ms ease;
+}
+#chrome{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px clamp(16px,4vw,48px);
+  padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  pointer-events:none;
+}
+#chrome > *{pointer-events:auto;}
+#counter{
+  font-family:"Geist Mono",monospace;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.06em;
+}
+#counter b{color:var(--fg);}
+.navbtns{display:flex; gap:10px;}
+.navbtn{
+  width:42px;height:42px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:rgba(23,21,15,.7);
+  color:var(--fg);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:border-color 160ms ease, background 160ms ease;
+}
+.navbtn:hover{border-color:var(--accent); background:rgba(111,166,210,.12);}
+.navbtn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.navbtn:disabled{opacity:.3; cursor:default;}
+.navbtn svg{width:16px;height:16px;}
+
+.dots{
+  position:fixed;
+  right:clamp(16px,4vw,48px);
+  top:50%;
+  transform:translateY(-50%);
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.dot{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--line);
+  border:none;
+  cursor:pointer;
+  padding:0;
+  transition:background 160ms ease, transform 160ms ease;
+}
+.dot:hover{background:var(--muted);}
+.dot.active{background:var(--accent); transform:scale(1.5);}
+.dot:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+@media (max-width:640px){ .dots{display:none;} }
+
+@media (prefers-reduced-motion: reduce){
+  #track{transition:none;}
+}
+</style>
+
+<div id="progress" style="width:10%"></div>
+
+<div id="deck" role="region" aria-label="ArbiStealth pitch deck" tabindex="0">
+  <div class="canvas-bg" id="bg-deck"></div>
+  <div id="track">
+
+    <!-- 1 : TITLE -->
+    <section class="slide" data-title="Title">
+      <div class="slide-inner">
+        <p class="kicker">Arbitrum Open House Singapore &middot; Buildathon</p>
+        <h1>ArbiStealth</h1>
+        <p class="tagline">Private trade execution with verifiable agent accountability, built on Arbitrum.</p>
+      </div>
+    </section>
+
+    <!-- 2 : PROBLEM -->
+    <section class="slide" data-title="Problem">
+      <div class="slide-inner">
+        <p class="kicker">01 &middot; Problem</p>
+        <h2>On-chain trading is transparent by default. That's now a liability.</h2>
+        <div class="grid2">
+          <div class="point">
+            <h3>Every order is a public target</h3>
+            <p>Size, direction, and wallet are visible before and after execution, inviting front-running and copy-trading.</p>
+          </div>
+          <div class="point">
+            <h3>Agents trade with no accountability</h3>
+            <p>Autonomous agents are starting to act on users' behalf, with no verifiable record of whether they acted honestly.</p>
+          </div>
+          <div class="point">
+            <h3>Agent payments have no settlement standard</h3>
+            <p>Agent-to-agent and agent-to-protocol fees settle ad hoc, with no receipt trail tied to the agent that earned them.</p>
+          </div>
+          <div class="point">
+            <h3>Privacy and identity live apart</h3>
+            <p>Stealth-address tools and agent-identity tools exist separately. Nothing unifies them into one execution path.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 : SOLUTION -->
+    <section class="slide" data-title="Solution">
+      <div class="slide-inner">
+        <p class="kicker">02 &middot; Solution</p>
+        <h2>Three primitives, one protocol.</h2>
+        <p class="lede">ArbiStealth combines privacy, agent identity, and accountable payments into a single trade execution path.</p>
+        <div class="pillars">
+          <div class="pillar">
+            <p class="tag">Privacy</p>
+            <h3>Stealth settlement</h3>
+            <p>ERC-5564 stealth addresses and the ERC-6538 registry hide trade destination and history from outside observers.</p>
+          </div>
+          <div class="pillar">
+            <p class="tag">Agent identity</p>
+            <h3>On-chain reputation</h3>
+            <p>ERC-8004 gives every trading agent a persistent identity, so its track record is verifiable, not claimed.</p>
+          </div>
+          <div class="pillar">
+            <p class="tag">Payments</p>
+            <h3>Accountable fees</h3>
+            <p>x402 settles agent routing fees, with each receipt attached directly to that agent's on-chain reputation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 : HOW IT WORKS -->
+    <section class="slide" data-title="How it works">
+      <div class="slide-inner">
+        <p class="kicker">03 &middot; How it works</p>
+        <h2>One trade, start to finish.</h2>
+        <div class="flow">
+          <div class="flow-step"><div class="num">01</div><div><h3>Generate a stealth meta-address</h3><p>The user, or their agent, derives a stealth meta-address before any trade is placed.</p></div></div>
+          <div class="flow-step"><div class="num">02</div><div><h3>Agent submits a signed intent</h3><p>The trade intent is signed and tied to the agent's ERC-8004 identity.</p></div></div>
+          <div class="flow-step"><div class="num">03</div><div><h3>Intent is matched and routed</h3><p>The Settlement Router matches the intent and routes it for execution.</p></div></div>
+          <div class="flow-step"><div class="num">04</div><div><h3>Trade settles to the stealth address</h3><p>Settlement is invisible on-chain to outside observers.</p></div></div>
+          <div class="flow-step"><div class="num">05</div><div><h3>Routing fee settles via x402</h3><p>The fee receipt is written directly to the agent's on-chain reputation record.</p></div></div>
+          <div class="flow-step"><div class="num">06</div><div><h3>Reputation compounds</h3><p>Over repeated trades, honest agents become verifiably trustworthy, not just self-described as such.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 : WHY NOW -->
+    <section class="slide" data-title="Why now">
+      <div class="slide-inner">
+        <p class="kicker">04 &middot; Why this, why now</p>
+        <h2>Agents are moving from experiment to production. Nobody can verify them yet.</h2>
+        <div class="grid2">
+          <div class="point">
+            <h3>Agent identity is brand-new</h3>
+            <p>ERC-8004 is a new standard. Almost nothing combines agent identity with transaction privacy today.</p>
+          </div>
+          <div class="point">
+            <h3>Agent-native payments just arrived</h3>
+            <p>x402 gives agents a settlement rail of their own, built for machine-to-machine fees, not retrofitted from human checkout flows.</p>
+          </div>
+          <div class="point">
+            <h3>Arbitrum fits the cost profile</h3>
+            <p>Cheap enough to support frequent agent-driven transactions, mature enough to carry real liquidity.</p>
+          </div>
+          <div class="point">
+            <h3>The gap is structural, not incremental</h3>
+            <p>Privacy tools and reputation tools are each maturing on their own. Nobody has wired them into the same settlement path.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 : STATUS -->
+    <section class="slide" data-title="What's built">
+      <div class="slide-inner">
+        <p class="kicker">05 &middot; What's built</p>
+        <h2>Where the build actually stands.</h2>
+        <div class="status-table">
+          <div class="status-row">
+            <div class="label">Contracts on Arbitrum Sepolia</div>
+            <div class="fill">9 contracts deployed &mdash; IntentRegistry, SettlementRouter, FeeVault, stealth &amp; agent registries</div>
+            <div class="badge live">LIVE</div>
+          </div>
+          <div class="status-row">
+            <div class="label">Stealth order flow, end to end</div>
+            <div class="fill">Intent &rarr; relayer &rarr; solver &rarr; on-chain settlement &rarr; stealth payout, 31/31 tests passing</div>
+            <div class="badge live">LIVE</div>
+          </div>
+          <div class="status-row">
+            <div class="label">Agent identity &amp; reputation registry</div>
+            <div class="fill">SimpleAgentIdentityRegistry + ReputationRegistry, agents register and settle on-chain</div>
+            <div class="badge live">LIVE</div>
+          </div>
+          <div class="status-row">
+            <div class="label">x402-style fee settlement</div>
+            <div class="fill">FeeVault settles routing fees in real USDG, receipt stored on-chain</div>
+            <div class="badge live">LIVE</div>
+          </div>
+          <div class="status-row">
+            <div class="label">Frontend demo</div>
+            <div class="fill">Dashboard + Explorer &mdash; connect a wallet, submit intents, watch settlements live</div>
+            <div class="badge live">LIVE</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 : STACK -->
+    <section class="slide" data-title="Tech stack">
+      <div class="slide-inner">
+        <p class="kicker">06 &middot; Tech stack</p>
+        <h2>Built on open standards, not bespoke plumbing.</h2>
+        <div class="stack-list">
+          <div class="stack-item"><p class="role">Contracts</p><p class="val">Solidity + Foundry</p></div>
+          <div class="stack-item"><p class="role">Core contracts</p><p class="val">IntentRegistry, StealthAnnouncerAdapter, SettlementRouter, AgentIdentityAdapter, FeeVault</p></div>
+          <div class="stack-item"><p class="role">Frontend</p><p class="val">Next.js, wagmi, viem</p></div>
+          <div class="stack-item"><p class="role">Agent runtime</p><p class="val">Node.js, TypeScript</p></div>
+          <div class="stack-item"><p class="role">Privacy standards</p><p class="val">ERC-5564, ERC-6538</p></div>
+          <div class="stack-item"><p class="role">Identity standard</p><p class="val">ERC-8004</p></div>
+          <div class="stack-item"><p class="role">Payment standard</p><p class="val">x402</p></div>
+          <div class="stack-item"><p class="role">Network</p><p class="val">Arbitrum Sepolia &rarr; Arbitrum One</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 : DIFFERENTIATION -->
+    <section class="slide" data-title="Differentiation">
+      <div class="slide-inner">
+        <p class="kicker">07 &middot; How we're different</p>
+        <h2>Privacy and accountability, not privacy or accountability.</h2>
+        <div class="compare">
+          <div class="compare-row">
+            <div class="who">Fluidkey</div>
+            <p>Stealth addresses, live on Arbitrum. No agent layer, no payment accountability tied to it.</p>
+          </div>
+          <div class="compare-row">
+            <div class="who">Unwallet</div>
+            <p>Privacy-focused wallet infrastructure. Not built around autonomous agents or reputation.</p>
+          </div>
+          <div class="compare-row">
+            <div class="who">CanHav Research</div>
+            <p>Combines agent identity with privacy using FHE, a heavier cryptographic approach.</p>
+          </div>
+          <div class="compare-row us">
+            <div class="who">ArbiStealth</div>
+            <p>Stealth settlement plus x402-backed agent reputation: a lighter, more composable path to the same guarantee, with payment receipts written directly into the agent's track record.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 : ROADMAP -->
+    <section class="slide" data-title="Roadmap">
+      <div class="slide-inner">
+        <p class="kicker">08 &middot; Roadmap</p>
+        <h2>Sepolia first. Then real liquidity.</h2>
+        <div class="roadmap">
+          <div class="phase">
+            <p class="tag">Now</p>
+            <h3>Arbitrum Sepolia</h3>
+            <p>Core contracts, stealth order flow, agent identity registry.</p>
+          </div>
+          <div class="phase">
+            <p class="tag">Next</p>
+            <h3>Arbitrum One + SDK</h3>
+            <p>@arbistealth/sdk, so other apps can plug in stealth settlement and agent reputation directly.</p>
+          </div>
+          <div class="phase">
+            <p class="tag">Stretch</p>
+            <h3>Robinhood Chain</h3>
+            <p>Extend settlement to Robinhood Chain once Arbitrum deployment is stable.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 : ASK / CLOSE -->
+    <section class="slide" data-title="Ask">
+      <div class="slide-inner">
+        <p class="kicker">Ask</p>
+        <h2>Private execution, agents you can actually verify.</h2>
+        <div class="ask-grid">
+          <div class="ask-item">
+            <p class="role">Seeking</p>
+            <p class="val">Founder House support to build the SDK and expand agent integrations</p>
+          </div>
+          <div class="ask-item">
+            <p class="role">Try it</p>
+            <p class="val"><a href="https://sepolia.arbiscan.io/address/0x6b7866727B3D10598aEC1334f939Ce942f9907c9" target="_blank" rel="noreferrer">SettlementRouter on Arbiscan &#8599;</a></p>
+          </div>
+          <div class="ask-item">
+            <p class="role">Contact</p>
+            <p class="val"><a href="https://github.com/anbusan19" target="_blank" rel="noreferrer">github.com/anbusan19</a></p>
+          </div>
+          <div class="ask-item">
+            <p class="role">Repo</p>
+            <p class="val"><a href="https://github.com/anbusan19/arbistealth" target="_blank" rel="noreferrer">github.com/anbusan19/arbistealth</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div id="chrome">
+  <div id="counter"><b id="counter-cur">01</b> / <span id="counter-total">10</span></div>
+  <div class="navbtns">
+    <button class="navbtn" id="prev" aria-label="Previous slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="navbtn" id="next" aria-label="Next slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // Plus Jakarta Sans for body text + Geist Mono for labels — the same pairing
+  // the rest of the app (e.g. the dashboard) uses, not this deck's own fonts.
+  var aliasStyle = document.createElement('style');
+  aliasStyle.textContent =
+    'body,h1,h2,h3,.tagline,.lede,.point p{font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}' +
+    '.mono,.kicker,#counter,.navbtn,.pillar .tag,.flow-step .num,.status-row .fill,.stack-item .role,.phase .tag,.ask-item .role{font-family:"Geist Mono",ui-monospace,monospace;}';
+  document.head.appendChild(aliasStyle);
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------------- dither background ----------------
+  function DitherBG(container){
+    this.container = container;
+    this.ready = typeof THREE !== 'undefined';
+    if(!this.ready) return;
+
+    this.canvas = document.createElement('canvas');
+    container.appendChild(this.canvas);
+
+    this.renderer = new THREE.WebGLRenderer({canvas:this.canvas, antialias:true});
+    this.renderer.setPixelRatio(1);
+
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.OrthographicCamera(-1,1,1,-1,0.1,10);
+    this.camera.position.z = 1;
+
+    var vertexShader = [
+      'varying vec2 vUv;',
+      'void main(){',
+      '  vUv = uv;',
+      '  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);',
+      '}'
+    ].join('\n');
+
+    var fragmentShader = [
+      'precision highp float;',
+      'uniform vec2 resolution;',
+      'uniform float time;',
+      'uniform float waveSpeed;',
+      'uniform float waveFrequency;',
+      'uniform float waveAmplitude;',
+      'uniform vec3 waveColor;',
+      'uniform vec3 backgroundColor;',
+      'uniform vec2 mousePos;',
+      'uniform float enableMouseInteraction;',
+      'uniform float mouseRadius;',
+      'uniform float colorNum;',
+      'uniform float pixelSize;',
+      'varying vec2 vUv;',
+
+      'vec4 mod289(vec4 x){ return x - floor(x * (1.0/289.0)) * 289.0; }',
+      'vec4 permute(vec4 x){ return mod289(((x*34.0)+1.0)*x); }',
+      'vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314*r; }',
+      'vec2 fade(vec2 t){ return t*t*t*(t*(t*6.0-15.0)+10.0); }',
+
+      'float cnoise(vec2 P){',
+      '  vec4 Pi = floor(P.xyxy) + vec4(0.0,0.0,1.0,1.0);',
+      '  vec4 Pf = fract(P.xyxy) - vec4(0.0,0.0,1.0,1.0);',
+      '  Pi = mod289(Pi);',
+      '  vec4 ix = Pi.xzxz; vec4 iy = Pi.yyww;',
+      '  vec4 fx = Pf.xzxz; vec4 fy = Pf.yyww;',
+      '  vec4 i = permute(permute(ix) + iy);',
+      '  vec4 gx = fract(i*(1.0/41.0))*2.0 - 1.0;',
+      '  vec4 gy = abs(gx) - 0.5;',
+      '  vec4 tx = floor(gx + 0.5);',
+      '  gx = gx - tx;',
+      '  vec2 g00 = vec2(gx.x,gy.x); vec2 g10 = vec2(gx.y,gy.y);',
+      '  vec2 g01 = vec2(gx.z,gy.z); vec2 g11 = vec2(gx.w,gy.w);',
+      '  vec4 norm = taylorInvSqrt(vec4(dot(g00,g00),dot(g01,g01),dot(g10,g10),dot(g11,g11)));',
+      '  g00 *= norm.x; g01 *= norm.y; g10 *= norm.z; g11 *= norm.w;',
+      '  float n00 = dot(g00, vec2(fx.x,fy.x));',
+      '  float n10 = dot(g10, vec2(fx.y,fy.y));',
+      '  float n01 = dot(g01, vec2(fx.z,fy.z));',
+      '  float n11 = dot(g11, vec2(fx.w,fy.w));',
+      '  vec2 fade_xy = fade(Pf.xy);',
+      '  vec2 n_x = mix(vec2(n00,n01), vec2(n10,n11), fade_xy.x);',
+      '  return 2.3 * mix(n_x.x, n_x.y, fade_xy.y);',
+      '}',
+
+      'float fbm(vec2 p){',
+      '  float value = 0.0; float amp = 1.0; float freq = waveFrequency;',
+      '  for(int i=0;i<4;i++){',
+      '    value += amp * abs(cnoise(p));',
+      '    p *= freq;',
+      '    amp *= waveAmplitude;',
+      '  }',
+      '  return value;',
+      '}',
+
+      'float pattern(vec2 p){',
+      '  vec2 p2 = p - time*waveSpeed;',
+      '  return fbm(p + fbm(p2));',
+      '}',
+
+      'const float bayerMatrix8x8[64] = float[64](',
+      '  0.0/64.0, 48.0/64.0, 12.0/64.0, 60.0/64.0,  3.0/64.0, 51.0/64.0, 15.0/64.0, 63.0/64.0,',
+      '  32.0/64.0,16.0/64.0, 44.0/64.0, 28.0/64.0, 35.0/64.0,19.0/64.0, 47.0/64.0, 31.0/64.0,',
+      '  8.0/64.0, 56.0/64.0,  4.0/64.0, 52.0/64.0, 11.0/64.0,59.0/64.0,  7.0/64.0, 55.0/64.0,',
+      '  40.0/64.0,24.0/64.0, 36.0/64.0, 20.0/64.0, 43.0/64.0,27.0/64.0, 39.0/64.0, 23.0/64.0,',
+      '  2.0/64.0, 50.0/64.0, 14.0/64.0, 62.0/64.0,  1.0/64.0,49.0/64.0, 13.0/64.0, 61.0/64.0,',
+      '  34.0/64.0,18.0/64.0, 46.0/64.0, 30.0/64.0, 33.0/64.0,17.0/64.0, 45.0/64.0, 29.0/64.0,',
+      '  10.0/64.0,58.0/64.0,  6.0/64.0, 54.0/64.0,  9.0/64.0,57.0/64.0,  5.0/64.0, 53.0/64.0,',
+      '  42.0/64.0,26.0/64.0, 38.0/64.0, 22.0/64.0, 41.0/64.0,25.0/64.0, 37.0/64.0, 21.0/64.0',
+      ');',
+
+      'vec3 ditherColor(vec2 fragCoord, vec3 color){',
+      '  vec2 scaledCoord = floor(fragCoord / pixelSize);',
+      '  int x = int(mod(scaledCoord.x, 8.0));',
+      '  int y = int(mod(scaledCoord.y, 8.0));',
+      '  float threshold = bayerMatrix8x8[y*8+x] - 0.25;',
+      '  float step = 1.0/(colorNum-1.0);',
+      '  color += threshold*step;',
+      '  float luminance = dot(color, vec3(0.2126,0.7152,0.0722));',
+      '  float bias = mix(0.2,0.0, smoothstep(0.45,0.8,luminance));',
+      '  color = clamp(color-bias,0.0,1.0);',
+      '  return floor(color*(colorNum-1.0)+0.5)/(colorNum-1.0);',
+      '}',
+
+      'void main(){',
+      '  vec2 normalizedPixelSize = pixelSize/resolution;',
+      '  vec2 uvPixel = normalizedPixelSize*floor(vUv/normalizedPixelSize);',
+      '  vec2 p = uvPixel - 0.5;',
+      '  p.x *= resolution.x/resolution.y;',
+      '  float f = pattern(p);',
+      '  if(enableMouseInteraction > 0.5){',
+      '    vec2 mouseNDC = (mousePos/resolution - 0.5)*vec2(1.0,-1.0);',
+      '    mouseNDC.x *= resolution.x/resolution.y;',
+      '    float dist = length(p - mouseNDC);',
+      '    float effect = 1.0 - smoothstep(0.0, mouseRadius, dist);',
+      '    f -= 0.5*effect;',
+      '  }',
+      '  vec3 col = mix(backgroundColor, waveColor, clamp(f,0.0,1.0));',
+      '  col = ditherColor(gl_FragCoord.xy, col);',
+      '  gl_FragColor = vec4(col,1.0);',
+      '}'
+    ].join('\n');
+
+    this.uniforms = {
+      time:{value:0},
+      resolution:{value:new THREE.Vector2(1,1)},
+      waveSpeed:{value:0.045},
+      waveFrequency:{value:2.6},
+      waveAmplitude:{value:0.32},
+      waveColor:{value:new THREE.Color(0.4353,0.6510,0.8235)},      // accent #6fa6d2
+      backgroundColor:{value:new THREE.Color(0.0157,0.0196,0.0314)}, // bg #040508
+      mousePos:{value:new THREE.Vector2(0,0)},
+      enableMouseInteraction:{value: reduceMotion ? 0 : 1},
+      mouseRadius:{value:0.35},
+      colorNum:{value:5},
+      pixelSize:{value:3}
+    };
+
+    this.material = new THREE.ShaderMaterial({uniforms:this.uniforms, vertexShader:vertexShader, fragmentShader:fragmentShader});
+    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(2,2), this.material);
+    this.scene.add(this.mesh);
+
+    var self = this;
+    container.addEventListener('pointermove', function(e){
+      var rect = container.getBoundingClientRect();
+      self.uniforms.mousePos.value.set(
+        (e.clientX - rect.left),
+        rect.height - (e.clientY - rect.top)
+      );
+    });
+
+    this.resize();
+    window.addEventListener('resize', function(){ self.resize(); });
+
+    this.clock = new THREE.Clock();
+    this.active = true;
+
+    function tick(){
+      if(self.active){
+        if(!reduceMotion){ self.uniforms.time.value = self.clock.getElapsedTime(); }
+        self.renderer.render(self.scene, self.camera);
+      }
+      requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  DitherBG.prototype.resize = function(){
+    var w = this.container.clientWidth || 1;
+    var h = this.container.clientHeight || 1;
+    this.renderer.setSize(w, h, false);
+    this.uniforms.resolution.value.set(w, h);
+  };
+
+  var bgEl = document.getElementById('bg-deck');
+  if(bgEl) new DitherBG(bgEl);
+
+  // ---------------- slide navigation ----------------
+  var track = document.getElementById('track');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+
+  var dotsWrap = document.getElementById('dots');
+  slides.forEach(function(s, i){
+    var dot = document.createElement('button');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Go to slide ' + (i+1) + ': ' + (s.getAttribute('data-title') || ''));
+    dot.addEventListener('click', function(){ goTo(i); });
+    dotsWrap.appendChild(dot);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.querySelectorAll('.dot'));
+
+  var counterCur = document.getElementById('counter-cur');
+  var counterTotal = document.getElementById('counter-total');
+  var progress = document.getElementById('progress');
+  var prevBtn = document.getElementById('prev');
+  var nextBtn = document.getElementById('next');
+  counterTotal.textContent = String(total).padStart(2,'0');
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function render(){
+    track.style.transform = 'translateX(-' + (current * (100/total)) + '%)';
+    counterCur.textContent = pad(current+1);
+    progress.style.width = (((current+1)/total)*100) + '%';
+    dots.forEach(function(d,i){ d.classList.toggle('active', i===current); });
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total-1;
+  }
+
+  function goTo(i){
+    current = Math.max(0, Math.min(total-1, i));
+    render();
+  }
+
+  prevBtn.addEventListener('click', function(){ goTo(current-1); });
+  nextBtn.addEventListener('click', function(){ goTo(current+1); });
+
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' '){ e.preventDefault(); goTo(current+1); }
+    if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); goTo(current-1); }
+  });
+
+  var deck = document.getElementById('deck');
+  var touchStartX = null;
+  deck.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if(touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 50){ goTo(current + (dx < 0 ? 1 : -1)); }
+    touchStartX = null;
+  }, {passive:true});
+
+  render();
+})();
+</script>
+
+</body></html>

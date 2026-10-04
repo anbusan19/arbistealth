@@ -17,7 +17,7 @@ const eslintConfig = defineConfig([
     "src/shaders/**",
     "src/components/TechText.tsx",
     "src/components/DecryptedText.tsx",
-    "src/components/ui/Dither.tsx",
+    "src/components/ui/Dither.jsx",
     "src/components/ui/PixelBlast.jsx",
     "src/components/ui/TargetCursor.jsx",
   ]),
