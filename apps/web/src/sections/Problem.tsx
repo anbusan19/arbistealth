@@ -3,7 +3,6 @@
 import { Radio, ShieldOff, UserX, Link2Off } from "lucide-react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
-import GlareHover from "../components/ui/GlareHover";
 
 const PROBLEMS = [
   {
@@ -42,31 +41,17 @@ export function Problem() {
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {PROBLEMS.map((p, i) => (
-            <Reveal key={p.title} delay={0.08 * i}>
-              <GlareHover
-                width="100%"
-                height="100%"
-                background="rgba(255,255,255,0.02)"
-                borderColor="rgba(255,255,255,0.1)"
-                borderRadius="1rem"
-                glareColor="#6fa6d2"
-                glareOpacity={0.2}
-                glareAngle={-30}
-                glareSize={300}
-                transitionDuration={600}
-                className="group h-full p-6"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent transition-transform duration-300 group-hover:scale-110">
-                  <p.icon size={18} strokeWidth={1.75} />
-                </div>
-                <h3 className="mt-5 text-base font-medium text-white">{p.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-400">{p.body}</p>
-              </GlareHover>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal delay={0.1}>
+          <div className="mt-14 grid grid-cols-1 divide-y divide-white/10 border border-white/10 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
+            {PROBLEMS.map((p) => (
+              <div key={p.title} className="p-6 sm:p-8">
+                <p.icon size={20} strokeWidth={1.5} className="text-accent" />
+                <h3 className="mt-6 text-base font-medium text-white">{p.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-neutral-400">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   );

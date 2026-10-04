@@ -6,34 +6,38 @@ import { Reveal } from "../components/ui/Reveal";
 
 export function CTAFooter() {
   return (
-    <section className="px-6 py-24 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-[1600px]">
+    <section className="px-6 py-32 sm:px-10 lg:px-16">
+      <div className="mx-auto flex max-w-[1600px] flex-col items-center text-center">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/15 via-white/[0.02] to-transparent p-10 sm:p-16">
-            <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-accent/20 blur-3xl" />
-            <div className="relative flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-end">
-              <div>
-                <h2 className="max-w-md text-3xl font-medium tracking-tight text-white sm:text-4xl">
-                  Private settlement. Public accountability.
-                </h2>
-                <p className="mt-3 max-w-md text-sm text-neutral-400">
-                  Submit a signed intent and see it settle to a stealth address you control.
-                </p>
-              </div>
+          <span className="font-geist-mono text-[10px] tracking-[0.3em] text-accent/80 uppercase">
+            Arbitrum Sepolia · Live Now
+          </span>
+        </Reveal>
 
-              <Link
-                href="/login"
-                className="group flex shrink-0 items-center gap-2 border border-accent/50 bg-accent/10 px-6 py-3 font-geist-mono text-xs tracking-wide text-accent-light transition-colors hover:bg-accent/20"
-              >
-                LAUNCH APP
-                <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-1" />
-              </Link>
-            </div>
-          </div>
+        <Reveal delay={0.05}>
+          <h2 className="mt-6 max-w-3xl text-4xl font-medium tracking-tight text-white sm:text-5xl lg:text-6xl">
+            Private settlement. Public accountability.
+          </h2>
         </Reveal>
 
         <Reveal delay={0.1}>
-          <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-xs text-neutral-500 sm:flex-row sm:items-center">
+          <p className="mt-5 max-w-lg text-sm leading-relaxed text-neutral-400">
+            Submit a signed intent and see it settle to a stealth address you control.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.15}>
+          <Link
+            href="/login"
+            className="group mt-10 flex items-center gap-2 border border-accent/50 bg-accent/10 px-7 py-3.5 font-geist-mono text-xs tracking-wide text-accent-light transition-colors hover:bg-accent/20"
+          >
+            LAUNCH APP
+            <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-1" />
+          </Link>
+        </Reveal>
+
+        <Reveal delay={0.2}>
+          <div className="mt-24 flex w-full flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-neutral-500 sm:flex-row">
             <span className="font-geist-mono">ARBISTEALTH — ARBITRUM OPEN HOUSE SINGAPORE BUILDATHON</span>
             <div className="flex gap-4 font-geist-mono">
               <a

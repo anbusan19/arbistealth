@@ -49,14 +49,21 @@ export function LiveDeployment() {
           <SectionLabel index="§4">Live On Arbitrum Sepolia</SectionLabel>
         </Reveal>
 
-        <div className="mt-6 flex flex-wrap items-center gap-4">
-          <Reveal delay={0.05}>
-            <h2 className="max-w-2xl text-3xl font-medium tracking-tight text-white sm:text-4xl">
-              Not a mockup — every contract below is deployed and verifiable.
-            </h2>
-          </Reveal>
+        <div className="mt-6 flex flex-wrap items-start justify-between gap-6">
+          <div>
+            <Reveal delay={0.05}>
+              <h2 className="max-w-2xl text-3xl font-medium tracking-tight text-white sm:text-4xl">
+                Not a mockup — every contract below is deployed and verifiable.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-neutral-400">
+                Verified source on Arbiscan, not just bytecode — click through and read what it actually does.
+              </p>
+            </Reveal>
+          </div>
           <Reveal delay={0.1}>
-            <span className="flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 font-geist-mono text-[10px] tracking-wide text-emerald-300">
+            <span className="flex shrink-0 items-center gap-2 border border-emerald-400/30 bg-emerald-400/10 px-3 py-1.5 font-geist-mono text-[10px] tracking-wide text-emerald-300">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -67,7 +74,7 @@ export function LiveDeployment() {
         </div>
 
         <Reveal delay={0.15}>
-          <div className="mt-12 divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+          <div className="mt-12 divide-y divide-white/10 border border-white/10 bg-white/[0.02]">
             {KEYS.map((key) => (
               <a
                 key={key}
