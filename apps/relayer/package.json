@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/index.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node --env-file=.env dist/index.js",
+    "start": "node --env-file-if-exists=.env dist/index.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "seed-settlement": "tsx --env-file=.env scripts/seed-settlement.ts",
-    "solver": "tsx --env-file=.env scripts/solver.ts"
+    "seed-settlement": "tsx --env-file-if-exists=.env scripts/seed-settlement.ts",
+    "solver": "tsx --env-file-if-exists=.env scripts/solver.ts"
   },
   "dependencies": {
     "express": "^4.19.2",
