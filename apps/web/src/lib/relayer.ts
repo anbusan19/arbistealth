@@ -75,3 +75,16 @@ export async function fetchMyRelayerIntents(user: Address): Promise<RelayerInten
   const body = (await res.json()) as (WireIntent & RelayerIntent)[];
   return body.map(fromWireIntent);
 }
+
+/** Registers interest in the mainnet launch. */
+export async function joinMainnetWaitlist(email: string): Promise<void> {
+  const res = await fetch(`${RELAYER_URL}/waitlist`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ? JSON.stringify(body.error) : `Relayer returned ${res.status}`);
+  }
+}

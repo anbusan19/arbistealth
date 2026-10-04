@@ -3,7 +3,7 @@ import type { Hex } from "viem";
 import type { RelayerConfig } from "./config.js";
 import { IntentPool, IntentValidationError, type StoredIntent } from "./intentPool.js";
 import type { Intent } from "./types.js";
-import { claimSchema, settledSchema, submitIntentSchema } from "./schema.js";
+import { claimSchema, settledSchema, submitIntentSchema, waitlistSchema } from "./schema.js";
 
 function serializeIntent(intent: Intent) {
   return {
@@ -31,6 +31,10 @@ function serializeStored(stored: StoredIntent) {
 export function createServer(config: RelayerConfig): Express {
   const { domain } = config;
   const pool = new IntentPool(domain);
+  // Mainnet-launch interest list. In-memory like the intent pool above —
+  // resets on restart, which is fine for a pre-launch signal, not meant
+  // as durable storage.
+  const waitlist = new Set<string>();
   const app = express();
   app.use(express.json());
 
@@ -146,6 +150,17 @@ export function createServer(config: RelayerConfig): Express {
       }
       throw err;
     }
+  });
+
+  app.post("/waitlist", (req, res) => {
+    const parsed = waitlistSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+
+    waitlist.add(parsed.data.email.toLowerCase());
+    res.status(201).json({ ok: true });
   });
 
   return app;

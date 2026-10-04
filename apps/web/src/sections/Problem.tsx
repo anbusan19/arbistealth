@@ -51,7 +51,7 @@ export function Problem() {
                 background="rgba(255,255,255,0.02)"
                 borderColor="rgba(255,255,255,0.1)"
                 borderRadius="1rem"
-                glareColor="#6e87ed"
+                glareColor="#6fa6d2"
                 glareOpacity={0.2}
                 glareAngle={-30}
                 glareSize={300}

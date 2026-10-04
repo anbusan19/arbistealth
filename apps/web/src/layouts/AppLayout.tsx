@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 import PixelBlast from "@/components/ui/PixelBlast";
 
 /** Shared chrome for the functional app pages (dashboard, explorer, settings).
- *  Navigation is the global SiteMenu (hamburger, top-right), mounted once in
- *  the root layout — not per-page here. */
+ *  Navigation is the global FloatingHeader, mounted once in the root layout
+ *  (via providers.tsx) — not per-page here. */
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#040508] text-white">
       <div className="pointer-events-none fixed inset-0 z-0 opacity-50">
         <PixelBlast
           variant="square"
-          color="#6e87ed"
+          color="#6fa6d2"
           pixelSize={4}
           patternScale={3}
           patternDensity={0.9}

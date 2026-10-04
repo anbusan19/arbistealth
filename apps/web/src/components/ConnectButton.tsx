@@ -1,13 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 export function ConnectButton({ className = "" }: { className?: string }) {
   const { address, isConnected } = useAccount();
   const { connectors, connect, isPending } = useConnect();
   const { disconnect } = useDisconnect();
+  // wagmi restores a persisted connection client-side only, after the SSR
+  // pass already rendered the disconnected state — render that same
+  // disconnected state on the first client render too, so hydration matches,
+  // and only switch once mounted.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  if (isConnected && address) {
+  if (mounted && isConnected && address) {
     return (
       <button
         onClick={() => disconnect()}

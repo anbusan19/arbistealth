@@ -40,3 +40,7 @@ export const claimSchema = z.object({
 export const settledSchema = z.object({
   txHash: hexSchema.optional(),
 });
+
+export const waitlistSchema = z.object({
+  email: z.string().email(),
+});
