@@ -210,13 +210,30 @@ function SubmitIntentPanel({ address }: { address: Address }) {
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: async () => {
+      if (!publicClient) throw new Error("No RPC connection");
       setSubmittedHash(null);
+
+      // Read both tokens' decimals fresh here rather than trust the
+      // tokenInDecimals/tokenOutDecimals hooks — their RPC reads may not
+      // have resolved yet if the user pastes an address and submits
+      // quickly, silently falling back to 18 and badly mis-scaling amountIn
+      // or minAmountOut for any non-18-decimal token (e.g. USDG, PYUSD —
+      // both 6). These reads are cheap and always current.
+      const [resolvedInDecimals, resolvedOutDecimals] = await Promise.all([
+        publicClient
+          .readContract({ address: tokenIn as Address, abi: erc20Abi, functionName: "decimals" })
+          .catch(() => decimals),
+        publicClient
+          .readContract({ address: tokenOut as Address, abi: erc20Abi, functionName: "decimals" })
+          .catch(() => outDecimals),
+      ]);
+
       const intent: Intent = {
         user: address,
         tokenIn: tokenIn as Address,
         tokenOut: tokenOut as Address,
-        amountIn: amountInWei,
-        minAmountOut: parseUnits(minAmountOut || "0", outDecimals),
+        amountIn: parseUnits(amountIn || "0", resolvedInDecimals),
+        minAmountOut: parseUnits(minAmountOut || "0", resolvedOutDecimals),
         nonce: randomNonce(),
         expiry: BigInt(Math.floor(Date.now() / 1000) + Number(expiryMinutes) * 60),
       };
