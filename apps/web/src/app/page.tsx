@@ -4,6 +4,7 @@ import { Hero } from "@/sections/Hero";
 import { Problem } from "@/sections/Problem";
 import { Solution } from "@/sections/Solution";
 import { Architecture } from "@/sections/Architecture";
+import { TraceFlow } from "@/sections/TraceFlow";
 import { LiveDeployment } from "@/sections/LiveDeployment";
 import { CTAFooter } from "@/sections/CTAFooter";
 
@@ -14,6 +15,7 @@ export default function Home() {
       <Problem />
       <Solution />
       <Architecture />
+      <TraceFlow />
       <LiveDeployment />
       <CTAFooter />
     </div>
