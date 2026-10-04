@@ -37,9 +37,17 @@ body{
   overflow:hidden;
 }
 
+#bg-scrim{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(4,5,8,.6), rgba(4,5,8,.72));
+}
+
 #track{
   position:relative;
-  z-index:1;
+  z-index:2;
   display:flex;
   height:100%;
   width:1000%;
@@ -444,6 +452,7 @@ h2{
 
 <div id="deck" role="region" aria-label="ArbiStealth pitch deck" tabindex="0">
   <div class="canvas-bg" id="bg-deck"></div>
+  <div id="bg-scrim"></div>
   <div id="track">
 
     <!-- 1 : TITLE -->
