@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { usePublicClient, useReadContract, useSignTypedData, useWriteContract } from "wagmi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { parseUnits, type Address } from "viem";
+import { formatUnits, parseUnits, type Address } from "viem";
+import { Fingerprint, ArrowLeftRight, ListChecks } from "lucide-react";
 import { AppLayout } from "@/layouts/AppLayout";
 import { Panel } from "@/components/ui/Panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
@@ -23,6 +24,7 @@ import {
 } from "@/lib/contracts";
 import { INTENT_DOMAIN, INTENT_PRIMARY_TYPE, INTENT_TYPES, randomNonce, type Intent } from "@/lib/intent";
 import { fetchMyRelayerIntents, submitIntentToRelayer } from "@/lib/relayer";
+import { timeAgo } from "@/lib/time";
 
 function AgentPanel({ address }: { address: Address }) {
   const queryClient = useQueryClient();
@@ -66,7 +68,10 @@ function AgentPanel({ address }: { address: Address }) {
 
   return (
     <Panel className="flex h-full flex-col p-6 sm:p-8">
-      <SectionLabel index="A">Agent Identity</SectionLabel>
+      <div className="flex items-center gap-2">
+        <Fingerprint size={14} className="text-accent" strokeWidth={1.75} />
+        <SectionLabel index="A">Agent Identity</SectionLabel>
+      </div>
 
       {agentId.isLoading ? (
         <div className="mt-6">
@@ -124,9 +129,35 @@ function SubmitIntentPanel({ address }: { address: Address }) {
   const [submittedHash, setSubmittedHash] = useState<string | null>(null);
 
   const tokenInIsValid = ADDRESS_RE.test(tokenIn);
+
+  // tokenIn's own decimals, not a hardcoded 18 — a submitted amountIn must
+  // match what the token actually uses, or the intent settles the wrong size.
+  const tokenInDecimals = useReadContract({
+    address: tokenIn as Address,
+    abi: erc20Abi,
+    functionName: "decimals",
+    query: { enabled: tokenInIsValid },
+  });
+  const decimals = tokenInDecimals.data ?? 18;
+
+  const tokenInSymbol = useReadContract({
+    address: tokenIn as Address,
+    abi: erc20Abi,
+    functionName: "symbol",
+    query: { enabled: tokenInIsValid },
+  });
+
+  const balance = useReadContract({
+    address: tokenIn as Address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address],
+    query: { enabled: tokenInIsValid },
+  });
+
   const amountInWei = (() => {
     try {
-      return parseUnits(amountIn || "0", 18);
+      return parseUnits(amountIn || "0", decimals);
     } catch {
       return 0n;
     }
@@ -193,7 +224,10 @@ function SubmitIntentPanel({ address }: { address: Address }) {
 
   return (
     <Panel className="p-6 sm:p-8">
-      <SectionLabel index="B">Submit A Trade Intent</SectionLabel>
+      <div className="flex items-center gap-2">
+        <ArrowLeftRight size={14} className="text-accent" strokeWidth={1.75} />
+        <SectionLabel index="B">Submit A Trade Intent</SectionLabel>
+      </div>
       <p className="mt-4 text-sm text-neutral-400">
         Signs an EIP-712 intent and hands it to the relayer&apos;s off-chain pool — no gas, no on-chain tx yet. A
         solver agent picks it up, settles it on-chain, and pays your output to a stealth address.
@@ -215,6 +249,15 @@ function SubmitIntentPanel({ address }: { address: Address }) {
             required
             className="border border-white/10 bg-transparent px-3 py-2 font-geist-mono text-xs text-white outline-none focus:border-accent/40"
           />
+          {tokenInIsValid && (
+            <span className="mt-0.5 font-geist-mono text-[10px] text-neutral-500">
+              {balance.isLoading
+                ? "reading balance…"
+                : balance.data !== undefined
+                  ? `Balance: ${formatUnits(balance.data, decimals)} ${tokenInSymbol.data ?? ""}`
+                  : null}
+            </span>
+          )}
         </label>
         <label className="flex flex-col gap-1 text-xs text-neutral-400">
           Token out (address)
@@ -228,13 +271,24 @@ function SubmitIntentPanel({ address }: { address: Address }) {
         </label>
         <label className="flex flex-col gap-1 text-xs text-neutral-400">
           Amount in
-          <input
-            value={amountIn}
-            onChange={(e) => setAmountIn(e.target.value)}
-            placeholder="1.0"
-            required
-            className="border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-accent/40"
-          />
+          <div className="flex items-center gap-2">
+            <input
+              value={amountIn}
+              onChange={(e) => setAmountIn(e.target.value)}
+              placeholder="1.0"
+              required
+              className="min-w-0 flex-1 border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none focus:border-accent/40"
+            />
+            {tokenInIsValid && balance.data !== undefined && (
+              <button
+                type="button"
+                onClick={() => setAmountIn(formatUnits(balance.data, decimals))}
+                className="shrink-0 border border-white/10 px-2 py-2 font-geist-mono text-[10px] text-neutral-400 hover:border-accent/40 hover:text-accent-light"
+              >
+                MAX
+              </button>
+            )}
+          </div>
         </label>
         <label className="flex flex-col gap-1 text-xs text-neutral-400">
           Min amount out
@@ -304,6 +358,12 @@ const INTENT_STATUS_COLOR: Record<string, string> = {
   settled: "text-emerald-300",
 };
 
+const INTENT_STATUS_PILL: Record<string, string> = {
+  open: "border-white/10 bg-white/5",
+  claimed: "border-accent/30 bg-accent/10",
+  settled: "border-emerald-400/30 bg-emerald-400/10",
+};
+
 function MyIntentsPanel({ address }: { address: Address }) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["my-intents", address],
@@ -311,9 +371,31 @@ function MyIntentsPanel({ address }: { address: Address }) {
     refetchInterval: 5_000,
   });
 
+  const counts = useMemo(() => {
+    const base = { open: 0, claimed: 0, settled: 0 };
+    for (const stored of data ?? []) base[stored.status] += 1;
+    return base;
+  }, [data]);
+
   return (
     <Panel className="p-6 sm:p-8">
-      <SectionLabel index="C">My Intents</SectionLabel>
+      <div className="flex items-center gap-2">
+        <ListChecks size={14} className="text-accent" strokeWidth={1.75} />
+        <SectionLabel index="C">My Intents</SectionLabel>
+      </div>
+
+      {!isLoading && !error && !!data?.length && (
+        <div className="mt-4 flex flex-wrap items-center gap-2 font-geist-mono text-[10px] tracking-wide uppercase">
+          {(["open", "claimed", "settled"] as const).map((status) => (
+            <span
+              key={status}
+              className={`rounded-full border px-2.5 py-1 ${INTENT_STATUS_PILL[status]} ${INTENT_STATUS_COLOR[status]}`}
+            >
+              {counts[status]} {status}
+            </span>
+          ))}
+        </div>
+      )}
 
       {isLoading && (
         <div className="mt-6">
@@ -332,12 +414,21 @@ function MyIntentsPanel({ address }: { address: Address }) {
       <ul className="mt-6 flex max-h-64 flex-col divide-y divide-white/10 overflow-y-auto">
         {data?.map((stored) => (
           <li key={stored.intentHash} className="flex items-center justify-between gap-4 py-3">
-            <div className="flex items-center gap-3">
-              <span className={`font-geist-mono text-[10px] tracking-wide uppercase ${INTENT_STATUS_COLOR[stored.status]}`}>
-                {stored.status}
-              </span>
-              <span className="font-geist-mono text-xs text-neutral-400">
-                {stored.intentHash.slice(0, 10)}…{stored.intentHash.slice(-6)}
+            <div className="flex min-w-0 flex-col gap-1">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`font-geist-mono text-[10px] tracking-wide uppercase ${INTENT_STATUS_COLOR[stored.status]}`}
+                >
+                  {stored.status}
+                </span>
+                <span className="font-geist-mono text-xs text-neutral-400">
+                  {stored.intentHash.slice(0, 10)}…{stored.intentHash.slice(-6)}
+                </span>
+                <span className="font-geist-mono text-[10px] text-neutral-600">{timeAgo(stored.createdAt)}</span>
+              </div>
+              <span className="truncate font-geist-mono text-[11px] text-neutral-500">
+                {stored.intent.tokenIn.slice(0, 6)}…{stored.intent.tokenIn.slice(-4)} →{" "}
+                {stored.intent.tokenOut.slice(0, 6)}…{stored.intent.tokenOut.slice(-4)}
               </span>
             </div>
             {stored.settlementTxHash ? (
@@ -345,12 +436,12 @@ function MyIntentsPanel({ address }: { address: Address }) {
                 href={arbiscanTxUrl(stored.settlementTxHash)}
                 target="_blank"
                 rel="noreferrer"
-                className="font-geist-mono text-xs text-accent hover:underline"
+                className="shrink-0 font-geist-mono text-xs text-accent hover:underline"
               >
                 VIEW TX →
               </a>
             ) : (
-              <span className="font-geist-mono text-xs text-neutral-600">no tx yet</span>
+              <span className="shrink-0 font-geist-mono text-xs text-neutral-600">no tx yet</span>
             )}
           </li>
         ))}

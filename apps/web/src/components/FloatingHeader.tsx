@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/explorer", label: "Explorer" },
   { href: "/settings", label: "Settings" },
+  { href: "/pitch", label: "Pitch" },
 ];
 
 /** Replaces the old hamburger + right-side dropdown: a single floating bar,
@@ -20,8 +21,6 @@ export function FloatingHeader() {
   return (
     <div className="fixed top-6 right-6 z-50">
       <nav className="flex items-center gap-1 rounded-full border border-white/10 bg-[#040508]/80 px-2 py-1.5 uppercase backdrop-blur">
-        <span className="px-3 font-geist-mono text-xs tracking-wide text-neutral-500">ArbiStealth</span>
-        <span className="h-4 w-px bg-white/10" aria-hidden="true" />
         {LINKS.map((link) => {
           const active = link.href === pathname;
           return (

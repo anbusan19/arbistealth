@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import type { Log } from "viem";
+import { FileSignature, CheckCircle2, Radar, UserPlus, type LucideIcon } from "lucide-react";
 import { AppLayout } from "@/layouts/AppLayout";
 import { Panel } from "@/components/ui/Panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
@@ -45,6 +46,13 @@ const KIND_COLOR: Record<FeedItem["kind"], string> = {
   "Settlement Executed": "text-accent",
   "Stealth Announcement": "text-neutral-300",
   "Agent Registered": "text-emerald-300",
+};
+
+const KIND_ICON: Record<FeedItem["kind"], LucideIcon> = {
+  "Intent Submitted": FileSignature,
+  "Settlement Executed": CheckCircle2,
+  "Stealth Announcement": Radar,
+  "Agent Registered": UserPlus,
 };
 
 const FEED_FILTERS = [
@@ -147,6 +155,16 @@ function ExplorerFeedPanel() {
     return true;
   });
 
+  const filterCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const f of FEED_FILTERS) {
+      counts[f.label] = f.kinds
+        ? (data ?? []).filter((item) => (f.kinds as readonly string[]).includes(item.kind)).length
+        : (data ?? []).length;
+    }
+    return counts;
+  }, [data]);
+
   return (
     <Panel className="p-6 sm:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -161,7 +179,7 @@ function ExplorerFeedPanel() {
                   : "border-white/10 text-neutral-500 hover:text-white"
               }`}
             >
-              {f.label}
+              {f.label} <span className="text-neutral-600">{filterCounts[f.label]}</span>
             </button>
           ))}
         </div>
@@ -196,6 +214,10 @@ function ExplorerFeedPanel() {
                 className="flex w-full flex-col gap-1 py-4 text-left transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-3">
+                  {(() => {
+                    const Icon = KIND_ICON[item.kind];
+                    return <Icon size={14} strokeWidth={1.75} className={KIND_COLOR[item.kind]} />;
+                  })()}
                   <span className={`font-geist-mono text-[10px] tracking-wide uppercase ${KIND_COLOR[item.kind]}`}>
                     {item.kind}
                   </span>
