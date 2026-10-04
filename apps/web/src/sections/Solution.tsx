@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { motion } from "motion/react";
 import { SectionLabel } from "../components/ui/SectionLabel";
 import { Reveal } from "../components/ui/Reveal";
@@ -139,8 +139,21 @@ function StagePanel({ pillar }: { pillar: (typeof PILLARS)[number] }) {
   );
 }
 
+const CYCLE_MS = 6000;
+
 export function Solution() {
   const [active, setActive] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const start = Date.now();
+    const id = setInterval(() => {
+      const pct = Math.min(100, ((Date.now() - start) / CYCLE_MS) * 100);
+      setProgress(pct);
+      if (pct >= 100) setActive((a) => (a + 1) % PILLARS.length);
+    }, 50);
+    return () => clearInterval(id);
+  }, [active]);
 
   return (
     <section className="px-6 py-24 sm:px-10 lg:px-16">
@@ -164,86 +177,100 @@ export function Solution() {
           </Reveal>
         </div>
 
-        {/* Desktop: single sticky visual on the left, crossfading as the right-hand
-         *  narrative scrolls past. Mobile: falls back to a simple per-pillar stack,
-         *  since a pinned-visual scroll effect doesn't translate to small screens. */}
-        <div className="mt-20 hidden lg:grid lg:grid-cols-[1fr_1fr] lg:gap-16">
-          <div className="sticky top-32 h-fit self-start">
-            {/* Absolute-stacked crossfade, not AnimatePresence: `active` can jump
-             *  by more than one step in a single fast scroll (onViewportEnter
-             *  firing for several blocks in one paint), which left mode="wait"
-             *  stuck mid-exit at ~0 opacity. Animating each layer's opacity
-             *  independently can't get stuck regardless of how active changes. */}
-            <div className="relative">
-              {PILLARS.map((pillar, i) => (
-                <motion.div
-                  key={pillar.tag}
-                  animate={{ opacity: active === i ? 1 : 0 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className={active === i ? "relative" : "pointer-events-none absolute inset-0"}
-                  aria-hidden={active !== i}
-                >
-                  <StagePanel pillar={pillar} />
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {pillar.tags.map((t) => (
-                      <Tag key={t}>{t}</Tag>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
+        {/* A clicked/auto-advancing tab pair, not a scroll-linked crossfade: the
+         *  previous version tied the pinned visual to onViewportEnter firing on
+         *  giant min-h-[60vh] scroll spacers, which both bloated the section with
+         *  dead space and could desync — the visual and the narrative text in
+         *  view could land on two different pillars at once. Deterministic click
+         *  / timer state can't desync, and the compact layout needs no spacers. */}
+        <div className="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-16">
+          <Reveal>
+            <div className="lg:sticky lg:top-32">
+              <div className="relative">
+                {PILLARS.map((pillar, i) => (
+                  <motion.div
+                    key={pillar.tag}
+                    animate={{ opacity: active === i ? 1 : 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className={active === i ? "relative" : "pointer-events-none absolute inset-0"}
+                    aria-hidden={active !== i}
+                  >
+                    <StagePanel pillar={pillar} />
+                  </motion.div>
+                ))}
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {PILLARS[active].tags.map((t) => (
+                  <Tag key={t}>{t}</Tag>
+                ))}
+              </div>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="flex flex-col">
-            {PILLARS.map((pillar, i) => (
-              <motion.div
-                key={pillar.tag}
-                onViewportEnter={() => setActive(i)}
-                viewport={{ amount: 0.6, margin: "-10% 0px -10% 0px" }}
-                className="flex min-h-[60vh] flex-col justify-center py-12 first:pt-0 last:min-h-[40vh]"
-              >
-                <span className="font-geist-mono text-[10px] tracking-[0.2em] text-accent/80">{pillar.tag}</span>
-                <div className="mt-3 flex flex-wrap items-center gap-4">
-                  <h3 className="text-2xl font-medium tracking-tight text-white sm:text-3xl">{pillar.title}</h3>
-                  <span className="shrink-0 border border-accent/30 bg-accent/5 px-4 py-2 font-geist-mono text-[11px] tracking-wide text-accent-light">
-                    {pillar.standard}
-                  </span>
-                </div>
-                <p className="mt-4 max-w-md text-sm leading-relaxed text-neutral-400">{pillar.body}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Mobile fallback */}
-        <div className="mt-20 flex flex-col gap-20 lg:hidden">
-          {PILLARS.map((pillar) => (
-            <div key={pillar.tag}>
-              <Reveal>
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <h3 className="text-2xl font-medium tracking-tight text-white">{pillar.title}</h3>
-                  <span className="shrink-0 border border-accent/30 bg-accent/5 px-4 py-2 font-geist-mono text-[11px] tracking-wide text-accent-light">
-                    {pillar.standard}
-                  </span>
-                </div>
-              </Reveal>
-              <Reveal delay={0.05}>
-                <p className="mt-3 text-sm leading-relaxed text-neutral-400">{pillar.body}</p>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <div className="mt-8">
-                  <StagePanel pillar={pillar} />
-                </div>
-              </Reveal>
-              <Reveal delay={0.15}>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {pillar.tags.map((t) => (
-                    <Tag key={t}>{t}</Tag>
-                  ))}
-                </div>
-              </Reveal>
+          <Reveal delay={0.1}>
+            <div className="flex flex-col gap-3">
+              {PILLARS.map((pillar, i) => {
+                const isActive = active === i;
+                return (
+                  <button
+                    key={pillar.tag}
+                    onClick={() => setActive(i)}
+                    className={`relative overflow-hidden border p-5 text-left transition-colors sm:p-6 ${
+                      isActive ? "border-accent/40 bg-accent/[0.04]" : "border-white/10 bg-white/[0.01] hover:border-white/20"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0 left-0 h-full w-[2px] transition-colors ${
+                        isActive ? "bg-accent" : "bg-transparent"
+                      }`}
+                    />
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`font-geist-mono text-[10px] ${isActive ? "text-accent" : "text-neutral-600"}`}
+                        >
+                          0{i + 1}
+                        </span>
+                        <span
+                          className={`font-geist-mono text-[10px] tracking-[0.2em] ${
+                            isActive ? "text-accent/80" : "text-neutral-500"
+                          }`}
+                        >
+                          {pillar.tag}
+                        </span>
+                      </div>
+                      <span className="shrink-0 border border-white/10 bg-white/[0.02] px-3 py-1 font-geist-mono text-[10px] tracking-wide text-neutral-400">
+                        {pillar.standard}
+                      </span>
+                    </div>
+                    <h3
+                      className={`mt-3 text-xl font-medium tracking-tight sm:text-2xl ${
+                        isActive ? "text-white" : "text-neutral-400"
+                      }`}
+                    >
+                      {pillar.title}
+                    </h3>
+                    {isActive && (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-3 overflow-hidden text-sm leading-relaxed text-neutral-400"
+                      >
+                        {pillar.body}
+                      </motion.p>
+                    )}
+                    <div className="mt-4 h-[2px] w-full bg-white/5">
+                      <div
+                        className="h-full bg-accent/70"
+                        style={{ width: isActive ? `${progress}%` : "0%" }}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          ))}
+          </Reveal>
         </div>
       </div>
     </section>
